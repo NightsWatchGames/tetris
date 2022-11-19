@@ -44,77 +44,6 @@ pub struct Movable {
 #[derive(Component, Deref, DerefMut)]
 pub struct AutoMovePieceDownTimer(pub Timer);
 
-pub fn spawn_piece(mut commands: Commands) {
-    let new_sprite_bundle = |block: &Block| SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0.7, 0.7, 0.7),
-            ..default()
-        },
-        transform: Transform {
-            scale: Vec3::new(BLOCK_LENGTH, BLOCK_LENGTH, BLOCK_LENGTH),
-            translation: block.translation(),
-            ..default()
-        },
-        ..default()
-    };
-    let block = Block::new(0, 19);
-    commands
-        .spawn(Piece::I)
-        .insert(new_sprite_bundle(&block))
-        .insert(block)
-        .insert(Movable {
-            can_down: true,
-            can_left: true,
-            can_right: true,
-        })
-        .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-            1.0,
-            TimerMode::Repeating,
-        )));
-    let block = Block::new(1, 19);
-    commands
-        .spawn(Piece::I)
-        .insert(new_sprite_bundle(&block))
-        .insert(block)
-        .insert(Movable {
-            can_down: true,
-            can_left: true,
-            can_right: true,
-        })
-        .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-            1.0,
-            TimerMode::Repeating,
-        )));
-    let block = Block::new(2, 19);
-    commands
-        .spawn(Piece::I)
-        .insert(new_sprite_bundle(&block))
-        .insert(block)
-        .insert(Movable {
-            can_down: true,
-            can_left: true,
-            can_right: true,
-        })
-        .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-            1.0,
-            TimerMode::Repeating,
-        )));
-    let block = Block::new(3, 19);
-    commands
-        .spawn(Piece::I)
-        .insert(new_sprite_bundle(&block))
-        .insert(block)
-        .insert(Movable {
-            can_down: true,
-            can_left: true,
-            can_right: true,
-        })
-        .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-            1.0,
-            TimerMode::Repeating,
-        )));
-}
-
 // 手动移动四格骨牌
 pub fn manually_move_piece(
     keyboard_input: Res<Input<KeyCode>>,
@@ -146,9 +75,11 @@ pub fn manually_move_piece(
 
 // 自动向下移动四格骨牌
 pub fn auto_move_piece_down(
+    mut commands: Commands,
     time: Res<Time>,
     mut query: Query<
         (
+            Entity,
             &mut AutoMovePieceDownTimer,
             &mut Block,
             &mut Transform,
@@ -157,13 +88,17 @@ pub fn auto_move_piece_down(
         With<Piece>,
     >,
 ) {
-    for (mut timer, mut block, mut transform, movable) in &mut query {
+    for (entity, mut timer, mut block, mut transform, movable) in &mut query {
         timer.tick(time.delta());
 
         if timer.just_finished() {
             if movable.can_down {
                 block.y -= 1;
                 transform.translation = block.translation();
+            } else {
+                // 移除piece组件
+                info!("remove piece");
+                commands.entity(entity).remove::<Piece>();
             }
         }
     }
@@ -197,15 +132,15 @@ pub fn check_collision(
     // 检查是否碰撞面板方块
     for (block, _) in &piece_query {
         for board_block in &board_query {
-            if board_block.x == block.x - 1 {
+            if board_block.y == block.y && block.x > 0 && board_block.x == block.x - 1  {  // 防止0-1溢出
                 // 左侧碰撞
                 can_left = false;
             }
-            if board_block.x == block.x + 1 {
+            if board_block.y == block.y && board_block.x == block.x + 1  {
                 // 右侧碰撞
                 can_right = false;
             }
-            if board_block.y == block.y - 1 {
+            if board_block.x == block.x && block.y > 0 && board_block.y == block.y - 1  {
                 // 下侧碰撞
                 can_down = false;
             }
@@ -220,9 +155,84 @@ pub fn check_collision(
     }
 }
 
-// 旋转四格骨牌
+// TODO 旋转四格骨牌
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Block, &mut Transform), With<Piece>>,
 ) {
+}
+
+pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
+    if query.is_empty() {
+        info!("generate piece");
+        // 生成新的四格骨牌
+        let new_sprite_bundle = |block: &Block| SpriteBundle {
+            sprite: Sprite {
+                color: Color::rgb(0.7, 0.7, 0.7),
+                ..default()
+            },
+            transform: Transform {
+                scale: Vec3::new(BLOCK_LENGTH, BLOCK_LENGTH, BLOCK_LENGTH),
+                translation: block.translation(),
+                ..default()
+            },
+            ..default()
+        };
+        let block = Block::new(0, 19);
+        commands
+            .spawn(Piece::I)
+            .insert(new_sprite_bundle(&block))
+            .insert(block)
+            .insert(Movable {
+                can_down: true,
+                can_left: true,
+                can_right: true,
+            })
+            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
+                1.0,
+                TimerMode::Repeating,
+            )));
+        let block = Block::new(1, 19);
+        commands
+            .spawn(Piece::I)
+            .insert(new_sprite_bundle(&block))
+            .insert(block)
+            .insert(Movable {
+                can_down: true,
+                can_left: true,
+                can_right: true,
+            })
+            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
+                1.0,
+                TimerMode::Repeating,
+            )));
+        let block = Block::new(2, 19);
+        commands
+            .spawn(Piece::I)
+            .insert(new_sprite_bundle(&block))
+            .insert(block)
+            .insert(Movable {
+                can_down: true,
+                can_left: true,
+                can_right: true,
+            })
+            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
+                1.0,
+                TimerMode::Repeating,
+            )));
+        let block = Block::new(3, 19);
+        commands
+            .spawn(Piece::I)
+            .insert(new_sprite_bundle(&block))
+            .insert(block)
+            .insert(Movable {
+                can_down: true,
+                can_left: true,
+                can_right: true,
+            })
+            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
+                1.0,
+                TimerMode::Repeating,
+            )));
+    }
 }

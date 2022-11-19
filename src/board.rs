@@ -7,7 +7,7 @@ pub const BLOCK_LENGTH: f32 = 30.0;
 pub const BORDER_THICKNESS: f32 = 10.0;
 
 // 方块
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Debug)]
 pub struct Block {
     pub x: u32,
     pub y: u32,

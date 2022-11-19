@@ -17,12 +17,15 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
-        .add_startup_system(spawn_piece)
         .add_system(update_scoreboard)
         .add_system(update_linesboard)
-        .add_system(manually_move_piece)
-        .add_system(auto_move_piece_down)
-        .add_system(check_collision)
+        .add_system_set(
+            SystemSet::new()
+                .with_system(check_collision)
+                .with_system(manually_move_piece.after(check_collision))
+                .with_system(auto_move_piece_down.after(check_collision))
+        )
+        .add_system(auto_generate_new_piece)
         .run();
 }
 
