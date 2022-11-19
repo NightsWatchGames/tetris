@@ -20,7 +20,9 @@ fn main() {
         .add_startup_system(spawn_piece)
         .add_system(update_scoreboard)
         .add_system(update_linesboard)
-        .add_system(move_piece)
+        .add_system(manually_move_piece)
+        .add_system(auto_move_piece_down)
+        .add_system(check_collision)
         .run();
 }
 
