@@ -29,6 +29,7 @@ fn main() {
                 .with_system(auto_move_piece_down.after(check_collision))
         )
         .add_system(auto_generate_new_piece)
+        .add_system(check_line)
         .run();
 }
 
