@@ -4,10 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# bevy_ecs_tilemap = "0.8.0"
-# bevy_rapier2d = "0.17.0"
-# bevy-inspector-egui = "0.13.0"
-# bevy_editor_pls = "0.1.1"
+bevy-inspector-egui = "0.14.0"
 
 [dependencies.bevy]
 version = "0.9"
