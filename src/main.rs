@@ -8,10 +8,13 @@ mod board;
 mod piece;
 mod stats;
 
+const BACKGROUND_COLOR: Color = Color::BLACK;
+
 fn main() {
     App::new()
         .insert_resource(Score(0))
         .insert_resource(Lines(0))
+        .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_plugins(DefaultPlugins)
         .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(setup_camera)

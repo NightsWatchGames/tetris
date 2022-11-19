@@ -1,5 +1,6 @@
 use crate::board::*;
 use bevy::prelude::*;
+use rand::Rng;
 
 // 四格骨牌
 #[derive(Component)]
@@ -30,6 +31,11 @@ pub enum Piece {
     // ##
     //  ##
     Z,
+}
+
+pub struct PieceConfig {
+    init_blocks: (Block, Block, Block, Block),
+    color: Color,
 }
 
 // 可移动方向
@@ -165,6 +171,7 @@ pub fn rotate_piece(
 pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
     if query.is_empty() {
         info!("generate piece");
+        let piece_config = random_piece();
         // 生成新的四格骨牌
         let new_sprite_bundle = |block: &Block| SpriteBundle {
             sprite: Sprite {
@@ -178,7 +185,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
             },
             ..default()
         };
-        let block = Block::new(0, 19);
+        let block = piece_config.init_blocks.0.clone();
         commands
             .spawn(Piece::I)
             .insert(new_sprite_bundle(&block))
@@ -192,7 +199,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = Block::new(1, 19);
+        let block = piece_config.init_blocks.1.clone();
         commands
             .spawn(Piece::I)
             .insert(new_sprite_bundle(&block))
@@ -206,7 +213,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = Block::new(2, 19);
+        let block = piece_config.init_blocks.2.clone();
         commands
             .spawn(Piece::I)
             .insert(new_sprite_bundle(&block))
@@ -220,7 +227,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = Block::new(3, 19);
+        let block = piece_config.init_blocks.3.clone();
         commands
             .spawn(Piece::I)
             .insert(new_sprite_bundle(&block))
@@ -234,5 +241,61 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
                 1.0,
                 TimerMode::Repeating,
             )));
+    }
+}
+
+fn random_piece() -> PieceConfig {
+    let mut rng = rand::thread_rng();
+    match rng.gen_range(0..7) {
+        0 => {
+            // Piece::I
+            PieceConfig {
+                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(5, 19), Block::new(6, 19)),
+                color: Color::BLACK,
+            }
+        },
+        1 => {
+            // Piece::J
+            PieceConfig {
+                init_blocks: (Block::new(4, 20), Block::new(4, 19), Block::new(5, 19), Block::new(6, 19)),
+                color: Color::BLACK,
+            }
+        },
+        2 => {
+            // Piece::L
+            PieceConfig {
+                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(5, 19), Block::new(5, 20)),
+                color: Color::BLACK,
+            }
+        },
+        3 => {
+            // Piece::O
+            PieceConfig {
+                init_blocks: (Block::new(4, 20), Block::new(4, 19), Block::new(5, 19), Block::new(5, 20)),
+                color: Color::BLACK,
+            }
+        },
+        4 => {
+            // Piece::S
+            PieceConfig {
+                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(4, 20), Block::new(5, 20)),
+                color: Color::BLACK,
+            }
+        },
+        5 => {
+            // Piece::T
+            PieceConfig {
+                init_blocks: (Block::new(3, 19), Block::new(4, 20), Block::new(4, 19), Block::new(5, 19)),
+                color: Color::BLACK,
+            }
+        },
+        6 => {
+            // Piece::Z
+            PieceConfig {
+                init_blocks: (Block::new(4, 20), Block::new(5, 20), Block::new(5, 19), Block::new(6, 19)),
+                color: Color::BLACK,
+            }
+        },
+        _ => { panic!("No matched piece") },
     }
 }
