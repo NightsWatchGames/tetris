@@ -103,7 +103,6 @@ pub fn auto_move_piece_down(
                 transform.translation = block.translation();
             } else {
                 // 移除piece组件
-                info!("remove piece");
                 commands.entity(entity).remove::<Piece>();
             }
         }
@@ -164,13 +163,66 @@ pub fn check_collision(
 // TODO 旋转四格骨牌
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Block, &mut Transform), With<Piece>>,
+    mut query: Query<(&Piece, &mut Block, &mut Transform)>,
 ) {
+    if keyboard_input.just_pressed(KeyCode::Up) {
+        let piece = match query.iter().next() {
+            Some((piece, _, _)) => piece,
+            None => &Piece::I,
+        };
+        match piece {
+            Piece::I => {
+                let min_x = query.iter().map(|item| {item.1.x}).min().unwrap();
+                let max_x = query.iter().map(|item| {item.1.x}).max().unwrap();
+                let min_y = query.iter().map(|item| {item.1.y}).min().unwrap();
+                let max_y = query.iter().map(|item| {item.1.y}).max().unwrap();
+                if min_x == max_x {
+                    // 当前为垂直方向
+                    let new_y = max_y as u32 - 1;
+                    let mut new_min_x = min_x as u32 - 1;
+                    for (_, mut block, mut transform) in &mut query {
+                        block.y = new_y;
+                        block.x = new_min_x;
+                        transform.translation = block.translation();
+                        new_min_x += 1;
+                    }
+                } else {
+                    // 当前为水平方向
+                    let new_x = max_x as u32 - 1;
+                    let mut new_min_y = min_y as u32 - 1;
+                    for (_, mut block, mut transform) in &mut query {
+                        block.x = new_x;
+                        block.y = new_min_y;
+                        transform.translation = block.translation();
+                        new_min_y += 1;
+                    }
+                }
+            },
+            Piece::J => {
+
+            },
+            Piece::L => {
+                
+            },
+            Piece::O => {
+
+            },
+            Piece::S => {
+                
+            },
+            Piece::T => {
+
+            },
+            Piece::Z => {
+
+            },
+        }
+    }
 }
 
+// 自动生成新的四格骨牌
 pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
     if query.is_empty() {
-        info!("generate piece");
         let piece_config = random_piece();
         // 生成新的四格骨牌
         let new_sprite_bundle = |block: &Block| SpriteBundle {

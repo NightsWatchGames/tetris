@@ -30,6 +30,7 @@ fn main() {
         )
         .add_system(auto_generate_new_piece)
         .add_system(check_line)
+        .add_system(rotate_piece)
         .run();
 }
 
