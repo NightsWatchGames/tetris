@@ -55,21 +55,21 @@ pub fn manually_move_piece(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<Piece>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::Left) {
+    if keyboard_input.pressed(KeyCode::Left) {
         for (mut block, mut transform, movable) in &mut query {
             if movable.can_left {
                 block.x -= 1;
                 transform.translation = block.translation();
             }
         }
-    } else if keyboard_input.just_pressed(KeyCode::Right) {
+    } else if keyboard_input.pressed(KeyCode::Right) {
         for (mut block, mut transform, movable) in &mut query {
             if movable.can_right {
                 block.x += 1;
                 transform.translation = block.translation();
             }
         }
-    } else if keyboard_input.just_pressed(KeyCode::Down) {
+    } else if keyboard_input.pressed(KeyCode::Down) {
         for (mut block, mut transform, movable) in &mut query {
             if movable.can_down {
                 block.y -= 1;
@@ -161,6 +161,7 @@ pub fn check_collision(
 }
 
 // TODO 旋转四格骨牌
+// TODO 旋转不能产生碰撞（进入物体）
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&Piece, &mut Block, &mut Transform)>,
@@ -221,7 +222,10 @@ pub fn rotate_piece(
 }
 
 // 自动生成新的四格骨牌
-pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>) {
+pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, game_over_events: EventReader<GameOverEvent>) {
+    if !game_over_events.is_empty() {
+        return;
+    }
     if query.is_empty() {
         let piece_config = random_piece();
         // 生成新的四格骨牌

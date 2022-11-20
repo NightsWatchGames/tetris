@@ -19,6 +19,9 @@ pub struct Block {
     pub y: u32,
 }
 
+#[derive(Default)]
+pub struct GameOverEvent;
+
 impl Block {
     pub fn new(x: u32, y: u32) -> Self {
         Block { x, y }
@@ -120,6 +123,7 @@ pub fn setup_game_board(mut commands: Commands) {
     });
 }
 
+// 检查是否有成功的行
 pub fn check_line(
     mut commands: Commands,
     mut score: ResMut<Score>,
@@ -168,5 +172,19 @@ pub fn check_line(
                 transform.translation = block.translation();
             }
         }
+    }
+}
+
+
+// 检查是否游戏结束
+pub fn check_game_over(query: Query<&Block, Without<Piece>>, mut game_over_events: EventWriter<GameOverEvent>,) {
+    let mut max_block_y = 0;
+    for block in &query {
+        if block.y > max_block_y {
+            max_block_y = block.y;
+        }
+    }
+    if max_block_y >= 19 {
+        game_over_events.send(GameOverEvent::default());
     }
 }
