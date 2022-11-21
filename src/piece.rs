@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use rand::Rng;
 
 // 四格骨牌
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub enum Piece {
     // ####
     I,
@@ -34,8 +34,34 @@ pub enum Piece {
 }
 
 pub struct PieceConfig {
-    init_blocks: (Block, Block, Block, Block),
+    piece: Piece,
+    init_blocks: Piece4Blocks,
     color: Color,
+}
+
+pub struct Piece4Blocks(Block, Block, Block, Block);
+
+impl Piece4Blocks {
+    pub fn from_vec(blocks: &Vec<Mut<Block>>) -> Self {
+        Piece4Blocks(
+            blocks.get(0).unwrap().as_ref().clone(),
+            blocks.get(1).unwrap().as_ref().clone(),
+            blocks.get(2).unwrap().as_ref().clone(),
+            blocks.get(3).unwrap().as_ref().clone(),
+        )
+    }
+    pub fn min_x(&self) -> u32 {
+        std::cmp::min(self.0.x, self.1.x).min(self.2.x).min(self.3.x)
+    }
+    pub fn max_x(&self) -> u32 {
+        std::cmp::max(self.0.x, self.1.x).max(self.2.x).max(self.3.x)
+    }
+    pub fn min_y(&self) -> u32 {
+        std::cmp::min(self.0.y, self.1.y).min(self.2.y).min(self.3.y)
+    }
+    pub fn max_y(&self) -> u32 {
+        std::cmp::max(self.0.y, self.1.y).max(self.2.x).max(self.3.x)
+    }
 }
 
 // 可移动方向
@@ -137,15 +163,16 @@ pub fn check_collision(
     // 检查是否碰撞面板方块
     for (block, _) in &piece_query {
         for board_block in &board_query {
-            if board_block.y == block.y && block.x > 0 && board_block.x == block.x - 1  {  // 防止0-1溢出
+            if board_block.y == block.y && block.x > 0 && board_block.x == block.x - 1 {
+                // 防止0-1溢出
                 // 左侧碰撞
                 can_left = false;
             }
-            if board_block.y == block.y && board_block.x == block.x + 1  {
+            if board_block.y == block.y && board_block.x == block.x + 1 {
                 // 右侧碰撞
                 can_right = false;
             }
-            if board_block.x == block.x && block.y > 0 && board_block.y == block.y - 1  {
+            if board_block.x == block.x && block.y > 0 && board_block.y == block.y - 1 {
                 // 下侧碰撞
                 can_down = false;
             }
@@ -169,60 +196,72 @@ pub fn rotate_piece(
     if keyboard_input.just_pressed(KeyCode::Up) {
         let piece = match query.iter().next() {
             Some((piece, _, _)) => piece,
-            None => &Piece::I,
+            None => {
+                return;
+            }
         };
         match piece {
             Piece::I => {
-                let min_x = query.iter().map(|item| {item.1.x}).min().unwrap();
-                let max_x = query.iter().map(|item| {item.1.x}).max().unwrap();
-                let min_y = query.iter().map(|item| {item.1.y}).min().unwrap();
-                let max_y = query.iter().map(|item| {item.1.y}).max().unwrap();
-                if min_x == max_x {
-                    // 当前为垂直方向
-                    let new_y = max_y as u32 - 1;
-                    let mut new_min_x = min_x as u32 - 1;
-                    for (_, mut block, mut transform) in &mut query {
-                        block.y = new_y;
-                        block.x = new_min_x;
-                        transform.translation = block.translation();
-                        new_min_x += 1;
-                    }
-                } else {
-                    // 当前为水平方向
-                    let new_x = max_x as u32 - 1;
-                    let mut new_min_y = min_y as u32 - 1;
-                    for (_, mut block, mut transform) in &mut query {
-                        block.x = new_x;
-                        block.y = new_min_y;
-                        transform.translation = block.translation();
-                        new_min_y += 1;
-                    }
+                let mut blocks: Vec<Mut<Block>> = Vec::new();
+                let mut transforms: Vec<Mut<Transform>> = Vec::new();
+                for (_, block, transform) in &mut query {
+                    blocks.push(block);
+                    transforms.push(transform);
                 }
-            },
-            Piece::J => {
-
-            },
-            Piece::L => {
-                
-            },
-            Piece::O => {
-
-            },
-            Piece::S => {
-                
-            },
-            Piece::T => {
-
-            },
-            Piece::Z => {
-
-            },
+                let new_blocks = rotate_piece_i(Piece4Blocks::from_vec(&blocks));
+                blocks.get_mut(0).unwrap().set(new_blocks.0.x, new_blocks.0.y);
+                blocks.get_mut(1).unwrap().set(new_blocks.1.x, new_blocks.1.y);
+                blocks.get_mut(2).unwrap().set(new_blocks.2.x, new_blocks.2.y);
+                blocks.get_mut(3).unwrap().set(new_blocks.3.x, new_blocks.3.y);
+                transforms.get_mut(0).unwrap().translation = blocks.get(0).unwrap().translation();
+                transforms.get_mut(1).unwrap().translation = blocks.get(1).unwrap().translation();
+                transforms.get_mut(2).unwrap().translation = blocks.get(2).unwrap().translation();
+                transforms.get_mut(3).unwrap().translation = blocks.get(3).unwrap().translation();
+            }
+            Piece::J => {}
+            Piece::L => {}
+            Piece::O => {}
+            Piece::S => {}
+            Piece::T => {}
+            Piece::Z => {}
         }
     }
 }
 
+fn rotate_piece_i(blocks: Piece4Blocks) -> Piece4Blocks {
+    let min_x = blocks.min_x();
+    let max_x = blocks.max_x();
+    let min_y = blocks.min_y();
+    let max_y = blocks.max_y();
+    if min_x == max_x {
+        // 当前为垂直方向
+        let new_y = max_y as u32 - 1;
+        let new_min_x = min_x as u32 - 1;
+        return Piece4Blocks(
+            Block { x: new_min_x, y: new_y },
+            Block { x: new_min_x + 1, y: new_y },
+            Block { x: new_min_x + 2, y: new_y },
+            Block { x: new_min_x + 3, y: new_y },
+        );
+    } else {
+        // 当前为水平方向
+        let new_x = max_x as u32 - 1;
+        let new_min_y = min_y as u32 - 1;
+        return Piece4Blocks(
+            Block { x: new_x, y: new_min_y },
+            Block { x: new_x, y: new_min_y + 1},
+            Block { x: new_x, y: new_min_y + 2},
+            Block { x: new_x, y: new_min_y + 3},
+        );
+    }
+}
+
 // 自动生成新的四格骨牌
-pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, game_over_events: EventReader<GameOverEvent>) {
+pub fn auto_generate_new_piece(
+    mut commands: Commands,
+    query: Query<&Piece>,
+    game_over_events: EventReader<GameOverEvent>,
+) {
     if !game_over_events.is_empty() {
         return;
     }
@@ -243,7 +282,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, gam
         };
         let block = piece_config.init_blocks.0.clone();
         commands
-            .spawn(Piece::I)
+            .spawn(piece_config.piece.clone())
             .insert(new_sprite_bundle(&block))
             .insert(block)
             .insert(Movable {
@@ -257,7 +296,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, gam
             )));
         let block = piece_config.init_blocks.1.clone();
         commands
-            .spawn(Piece::I)
+            .spawn(piece_config.piece.clone())
             .insert(new_sprite_bundle(&block))
             .insert(block)
             .insert(Movable {
@@ -271,7 +310,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, gam
             )));
         let block = piece_config.init_blocks.2.clone();
         commands
-            .spawn(Piece::I)
+            .spawn(piece_config.piece.clone())
             .insert(new_sprite_bundle(&block))
             .insert(block)
             .insert(Movable {
@@ -285,7 +324,7 @@ pub fn auto_generate_new_piece(mut commands: Commands, query: Query<&Piece>, gam
             )));
         let block = piece_config.init_blocks.3.clone();
         commands
-            .spawn(Piece::I)
+            .spawn(piece_config.piece.clone())
             .insert(new_sprite_bundle(&block))
             .insert(block)
             .insert(Movable {
@@ -306,52 +345,96 @@ fn random_piece() -> PieceConfig {
         0 => {
             // Piece::I
             PieceConfig {
-                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(5, 19), Block::new(6, 19)),
+                piece: Piece::I,
+                init_blocks: Piece4Blocks(
+                    Block::new(3, 19),
+                    Block::new(4, 19),
+                    Block::new(5, 19),
+                    Block::new(6, 19),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         1 => {
             // Piece::J
             PieceConfig {
-                init_blocks: (Block::new(4, 20), Block::new(4, 19), Block::new(5, 19), Block::new(6, 19)),
+                piece: Piece::J,
+                init_blocks: Piece4Blocks(
+                    Block::new(4, 20),
+                    Block::new(4, 19),
+                    Block::new(5, 19),
+                    Block::new(6, 19),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         2 => {
             // Piece::L
             PieceConfig {
-                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(5, 19), Block::new(5, 20)),
+                piece: Piece::L,
+                init_blocks: Piece4Blocks(
+                    Block::new(3, 19),
+                    Block::new(4, 19),
+                    Block::new(5, 19),
+                    Block::new(5, 20),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         3 => {
             // Piece::O
             PieceConfig {
-                init_blocks: (Block::new(4, 20), Block::new(4, 19), Block::new(5, 19), Block::new(5, 20)),
+                piece: Piece::O,
+                init_blocks: Piece4Blocks(
+                    Block::new(4, 20),
+                    Block::new(4, 19),
+                    Block::new(5, 19),
+                    Block::new(5, 20),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         4 => {
             // Piece::S
             PieceConfig {
-                init_blocks: (Block::new(3, 19), Block::new(4, 19), Block::new(4, 20), Block::new(5, 20)),
+                piece: Piece::S,
+                init_blocks: Piece4Blocks(
+                    Block::new(3, 19),
+                    Block::new(4, 19),
+                    Block::new(4, 20),
+                    Block::new(5, 20),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         5 => {
             // Piece::T
             PieceConfig {
-                init_blocks: (Block::new(3, 19), Block::new(4, 20), Block::new(4, 19), Block::new(5, 19)),
+                piece: Piece::T,
+                init_blocks: Piece4Blocks(
+                    Block::new(3, 19),
+                    Block::new(4, 20),
+                    Block::new(4, 19),
+                    Block::new(5, 19),
+                ),
                 color: Color::BLACK,
             }
-        },
+        }
         6 => {
             // Piece::Z
             PieceConfig {
-                init_blocks: (Block::new(4, 20), Block::new(5, 20), Block::new(5, 19), Block::new(6, 19)),
+                piece: Piece::Z,
+                init_blocks: Piece4Blocks(
+                    Block::new(4, 20),
+                    Block::new(5, 20),
+                    Block::new(5, 19),
+                    Block::new(6, 19),
+                ),
                 color: Color::BLACK,
             }
-        },
-        _ => { panic!("No matched piece") },
+        }
+        _ => {
+            panic!("No matched piece")
+        }
     }
 }

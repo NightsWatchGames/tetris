@@ -34,6 +34,10 @@ impl Block {
             z: 0.0,
         }
     }
+    pub fn set(&mut self, x: u32, y: u32) {
+        self.x = x;
+        self.y = y;
+    }
 }
 
 pub fn setup_game_board(mut commands: Commands) {
