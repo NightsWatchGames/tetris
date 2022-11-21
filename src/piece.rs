@@ -3,40 +3,68 @@ use bevy::prelude::*;
 use rand::Rng;
 
 // 四格骨牌
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Copy)]
 pub enum Piece {
     // ####
-    I,
+    I(RotationAngle),
 
     // #
     // ###
-    J,
+    J(RotationAngle),
 
     //   #
     // ###
-    L,
+    L(RotationAngle),
 
     // ##
     // ##
-    O,
+    O(RotationAngle),
 
     //  ##
     // ##
-    S,
+    S(RotationAngle),
 
     //  #
     // ###
-    T,
+    T(RotationAngle),
 
     // ##
     //  ##
-    Z,
+    Z(RotationAngle),
+}
+
+// 旋转角度
+#[derive(Debug, Clone, Copy)]
+pub enum RotationAngle {
+    Angle0,
+    Angle90,
+    Angle180,
+    Angle270,
 }
 
 pub struct PieceConfig {
-    piece: Piece,
-    init_blocks: Piece4Blocks,
-    color: Color,
+    pub piece: Piece,
+    pub blocks: Piece4Blocks,
+    pub color: Color,
+}
+
+impl PieceConfig {
+    pub fn new(piece: Piece, blocks: Piece4Blocks) -> Self {
+        let color = match piece {
+            Piece::I(_) => Color::CYAN,
+            Piece::J(_) => Color::BLUE,
+            Piece::L(_) => Color::ORANGE,
+            Piece::O(_) => Color::YELLOW,
+            Piece::S(_) => Color::GREEN,
+            Piece::T(_) => Color::PURPLE,
+            Piece::Z(_) => Color::RED,
+        };
+        PieceConfig {
+            piece,
+            blocks,
+            color,
+        }
+    }
 }
 
 pub struct Piece4Blocks(Block, Block, Block, Block);
@@ -51,16 +79,24 @@ impl Piece4Blocks {
         )
     }
     pub fn min_x(&self) -> u32 {
-        std::cmp::min(self.0.x, self.1.x).min(self.2.x).min(self.3.x)
+        std::cmp::min(self.0.x, self.1.x)
+            .min(self.2.x)
+            .min(self.3.x)
     }
     pub fn max_x(&self) -> u32 {
-        std::cmp::max(self.0.x, self.1.x).max(self.2.x).max(self.3.x)
+        std::cmp::max(self.0.x, self.1.x)
+            .max(self.2.x)
+            .max(self.3.x)
     }
     pub fn min_y(&self) -> u32 {
-        std::cmp::min(self.0.y, self.1.y).min(self.2.y).min(self.3.y)
+        std::cmp::min(self.0.y, self.1.y)
+            .min(self.2.y)
+            .min(self.3.y)
     }
     pub fn max_y(&self) -> u32 {
-        std::cmp::max(self.0.y, self.1.y).max(self.2.x).max(self.3.x)
+        std::cmp::max(self.0.y, self.1.y)
+            .max(self.2.x)
+            .max(self.3.x)
     }
 }
 
@@ -195,64 +231,113 @@ pub fn rotate_piece(
 ) {
     if keyboard_input.just_pressed(KeyCode::Up) {
         let piece = match query.iter().next() {
-            Some((piece, _, _)) => piece,
+            Some((piece, _, _)) => piece.clone(),
             None => {
                 return;
             }
         };
         match piece {
-            Piece::I => {
+            Piece::I(angle) => {
                 let mut blocks: Vec<Mut<Block>> = Vec::new();
                 let mut transforms: Vec<Mut<Transform>> = Vec::new();
                 for (_, block, transform) in &mut query {
                     blocks.push(block);
                     transforms.push(transform);
                 }
-                let new_blocks = rotate_piece_i(Piece4Blocks::from_vec(&blocks));
-                blocks.get_mut(0).unwrap().set(new_blocks.0.x, new_blocks.0.y);
-                blocks.get_mut(1).unwrap().set(new_blocks.1.x, new_blocks.1.y);
-                blocks.get_mut(2).unwrap().set(new_blocks.2.x, new_blocks.2.y);
-                blocks.get_mut(3).unwrap().set(new_blocks.3.x, new_blocks.3.y);
+                let piece_config = PieceConfig::new(piece.clone(), Piece4Blocks::from_vec(&blocks));
+                let piece_config = rotate_piece_i(piece_config);
+                blocks
+                    .get_mut(0)
+                    .unwrap()
+                    .set(piece_config.blocks.0.x, piece_config.blocks.0.y);
+                blocks
+                    .get_mut(1)
+                    .unwrap()
+                    .set(piece_config.blocks.1.x, piece_config.blocks.1.y);
+                blocks
+                    .get_mut(2)
+                    .unwrap()
+                    .set(piece_config.blocks.2.x, piece_config.blocks.2.y);
+                blocks
+                    .get_mut(3)
+                    .unwrap()
+                    .set(piece_config.blocks.3.x, piece_config.blocks.3.y);
                 transforms.get_mut(0).unwrap().translation = blocks.get(0).unwrap().translation();
                 transforms.get_mut(1).unwrap().translation = blocks.get(1).unwrap().translation();
                 transforms.get_mut(2).unwrap().translation = blocks.get(2).unwrap().translation();
                 transforms.get_mut(3).unwrap().translation = blocks.get(3).unwrap().translation();
             }
-            Piece::J => {}
-            Piece::L => {}
-            Piece::O => {}
-            Piece::S => {}
-            Piece::T => {}
-            Piece::Z => {}
+            Piece::J(angle) => {}
+            Piece::L(angle) => {}
+            Piece::O(angle) => {}
+            Piece::S(angle) => {}
+            Piece::T(angle) => {}
+            Piece::Z(angle) => {}
         }
     }
 }
 
-fn rotate_piece_i(blocks: Piece4Blocks) -> Piece4Blocks {
-    let min_x = blocks.min_x();
-    let max_x = blocks.max_x();
-    let min_y = blocks.min_y();
-    let max_y = blocks.max_y();
-    if min_x == max_x {
-        // 当前为垂直方向
-        let new_y = max_y as u32 - 1;
-        let new_min_x = min_x as u32 - 1;
-        return Piece4Blocks(
-            Block { x: new_min_x, y: new_y },
-            Block { x: new_min_x + 1, y: new_y },
-            Block { x: new_min_x + 2, y: new_y },
-            Block { x: new_min_x + 3, y: new_y },
-        );
-    } else {
-        // 当前为水平方向
-        let new_x = max_x as u32 - 1;
-        let new_min_y = min_y as u32 - 1;
-        return Piece4Blocks(
-            Block { x: new_x, y: new_min_y },
-            Block { x: new_x, y: new_min_y + 1},
-            Block { x: new_x, y: new_min_y + 2},
-            Block { x: new_x, y: new_min_y + 3},
-        );
+fn rotate_piece_i(piece_config: PieceConfig) -> PieceConfig {
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::I(RotationAngle::Angle0) | Piece::I(RotationAngle::Angle180) => {
+            // 当前为水平方向
+            let new_x = max_x as u32 - 1;
+            let new_min_y = min_y as u32 - 1;
+            return PieceConfig::new(
+                Piece::I(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_x,
+                        y: new_min_y + 3,
+                    },
+                ),
+            );
+        }
+        Piece::I(RotationAngle::Angle90) | Piece::I(RotationAngle::Angle270) => {
+            // 当前为垂直方向
+            let new_y = max_y as u32 - 1;
+            let new_min_x = min_x as u32 - 1;
+            return PieceConfig::new(
+                Piece::I(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_y,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_y,
+                    },
+                    Block {
+                        x: new_min_x + 3,
+                        y: new_y,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::I");
+        }
     }
 }
 
@@ -268,11 +353,8 @@ pub fn auto_generate_new_piece(
     if query.is_empty() {
         let piece_config = random_piece();
         // 生成新的四格骨牌
-        let new_sprite_bundle = |block: &Block| SpriteBundle {
-            sprite: Sprite {
-                color: Color::rgb(0.7, 0.7, 0.7),
-                ..default()
-            },
+        let new_sprite_bundle = |block: &Block, color: Color| SpriteBundle {
+            sprite: Sprite { color, ..default() },
             transform: Transform {
                 scale: Vec3::new(BLOCK_LENGTH, BLOCK_LENGTH, BLOCK_LENGTH),
                 translation: block.translation(),
@@ -280,10 +362,11 @@ pub fn auto_generate_new_piece(
             },
             ..default()
         };
-        let block = piece_config.init_blocks.0.clone();
+        let color = piece_config.color;
+        let block = piece_config.blocks.0.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block))
+            .insert(new_sprite_bundle(&block, color))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -294,10 +377,10 @@ pub fn auto_generate_new_piece(
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = piece_config.init_blocks.1.clone();
+        let block = piece_config.blocks.1.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block))
+            .insert(new_sprite_bundle(&block, color))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -308,10 +391,10 @@ pub fn auto_generate_new_piece(
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = piece_config.init_blocks.2.clone();
+        let block = piece_config.blocks.2.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block))
+            .insert(new_sprite_bundle(&block, color))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -322,10 +405,10 @@ pub fn auto_generate_new_piece(
                 1.0,
                 TimerMode::Repeating,
             )));
-        let block = piece_config.init_blocks.3.clone();
+        let block = piece_config.blocks.3.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block))
+            .insert(new_sprite_bundle(&block, color))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -342,97 +425,69 @@ pub fn auto_generate_new_piece(
 fn random_piece() -> PieceConfig {
     let mut rng = rand::thread_rng();
     match rng.gen_range(0..7) {
-        0 => {
-            // Piece::I
-            PieceConfig {
-                piece: Piece::I,
-                init_blocks: Piece4Blocks(
-                    Block::new(3, 19),
-                    Block::new(4, 19),
-                    Block::new(5, 19),
-                    Block::new(6, 19),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        1 => {
-            // Piece::J
-            PieceConfig {
-                piece: Piece::J,
-                init_blocks: Piece4Blocks(
-                    Block::new(4, 20),
-                    Block::new(4, 19),
-                    Block::new(5, 19),
-                    Block::new(6, 19),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        2 => {
-            // Piece::L
-            PieceConfig {
-                piece: Piece::L,
-                init_blocks: Piece4Blocks(
-                    Block::new(3, 19),
-                    Block::new(4, 19),
-                    Block::new(5, 19),
-                    Block::new(5, 20),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        3 => {
-            // Piece::O
-            PieceConfig {
-                piece: Piece::O,
-                init_blocks: Piece4Blocks(
-                    Block::new(4, 20),
-                    Block::new(4, 19),
-                    Block::new(5, 19),
-                    Block::new(5, 20),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        4 => {
-            // Piece::S
-            PieceConfig {
-                piece: Piece::S,
-                init_blocks: Piece4Blocks(
-                    Block::new(3, 19),
-                    Block::new(4, 19),
-                    Block::new(4, 20),
-                    Block::new(5, 20),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        5 => {
-            // Piece::T
-            PieceConfig {
-                piece: Piece::T,
-                init_blocks: Piece4Blocks(
-                    Block::new(3, 19),
-                    Block::new(4, 20),
-                    Block::new(4, 19),
-                    Block::new(5, 19),
-                ),
-                color: Color::BLACK,
-            }
-        }
-        6 => {
-            // Piece::Z
-            PieceConfig {
-                piece: Piece::Z,
-                init_blocks: Piece4Blocks(
-                    Block::new(4, 20),
-                    Block::new(5, 20),
-                    Block::new(5, 19),
-                    Block::new(6, 19),
-                ),
-                color: Color::BLACK,
-            }
-        }
+        0 => PieceConfig::new(
+            Piece::I(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
+        1 => PieceConfig::new(
+            Piece::J(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
+        2 => PieceConfig::new(
+            Piece::L(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(5, 20),
+            ),
+        ),
+        3 => PieceConfig::new(
+            Piece::O(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(5, 20),
+            ),
+        ),
+        4 => PieceConfig::new(
+            Piece::S(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(4, 20),
+                Block::new(5, 20),
+            ),
+        ),
+        5 => PieceConfig::new(
+            Piece::T(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+            ),
+        ),
+        6 => PieceConfig::new(
+            Piece::Z(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(5, 20),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
         _ => {
             panic!("No matched piece")
         }
