@@ -42,6 +42,7 @@ pub enum RotationAngle {
     Angle270,
 }
 
+#[derive(Debug)]
 pub struct PieceConfig {
     pub piece: Piece,
     pub blocks: Piece4Blocks,
@@ -67,6 +68,7 @@ impl PieceConfig {
     }
 }
 
+#[derive(Debug)]
 pub struct Piece4Blocks(Block, Block, Block, Block);
 
 impl Piece4Blocks {
@@ -227,7 +229,7 @@ pub fn check_collision(
 // TODO 旋转不能产生碰撞（进入物体）
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&Piece, &mut Block, &mut Transform)>,
+    mut query: Query<(&mut Piece, &mut Block, &mut Transform)>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Up) {
         let piece = match query.iter().next() {
@@ -236,43 +238,60 @@ pub fn rotate_piece(
                 return;
             }
         };
+        let mut blocks: Vec<Mut<Block>> = Vec::new();
+        let mut transforms: Vec<Mut<Transform>> = Vec::new();
+        for (_, block, transform) in &mut query {
+            blocks.push(block);
+            transforms.push(transform);
+        }
+        let mut piece_config = PieceConfig::new(piece.clone(), Piece4Blocks::from_vec(&blocks));
         match piece {
             Piece::I(angle) => {
-                let mut blocks: Vec<Mut<Block>> = Vec::new();
-                let mut transforms: Vec<Mut<Transform>> = Vec::new();
-                for (_, block, transform) in &mut query {
-                    blocks.push(block);
-                    transforms.push(transform);
-                }
-                let piece_config = PieceConfig::new(piece.clone(), Piece4Blocks::from_vec(&blocks));
-                let piece_config = rotate_piece_i(piece_config);
-                blocks
-                    .get_mut(0)
-                    .unwrap()
-                    .set(piece_config.blocks.0.x, piece_config.blocks.0.y);
-                blocks
-                    .get_mut(1)
-                    .unwrap()
-                    .set(piece_config.blocks.1.x, piece_config.blocks.1.y);
-                blocks
-                    .get_mut(2)
-                    .unwrap()
-                    .set(piece_config.blocks.2.x, piece_config.blocks.2.y);
-                blocks
-                    .get_mut(3)
-                    .unwrap()
-                    .set(piece_config.blocks.3.x, piece_config.blocks.3.y);
-                transforms.get_mut(0).unwrap().translation = blocks.get(0).unwrap().translation();
-                transforms.get_mut(1).unwrap().translation = blocks.get(1).unwrap().translation();
-                transforms.get_mut(2).unwrap().translation = blocks.get(2).unwrap().translation();
-                transforms.get_mut(3).unwrap().translation = blocks.get(3).unwrap().translation();
+                piece_config = rotate_piece_i(piece_config);
             }
-            Piece::J(angle) => {}
-            Piece::L(angle) => {}
+            Piece::J(angle) => {
+                piece_config = rotate_piece_j(piece_config);
+            }
+            Piece::L(angle) => {
+                piece_config = rotate_piece_l(piece_config);
+            }
             Piece::O(angle) => {}
-            Piece::S(angle) => {}
-            Piece::T(angle) => {}
-            Piece::Z(angle) => {}
+            Piece::S(angle) => {
+                piece_config = rotate_piece_s(piece_config);
+            }
+            Piece::T(angle) => {
+                piece_config = rotate_piece_t(piece_config);
+            }
+            Piece::Z(angle) => {
+                piece_config = rotate_piece_z(piece_config);
+            }
+        }
+
+        // 更新block位置
+        blocks
+            .get_mut(0)
+            .unwrap()
+            .set(piece_config.blocks.0.x, piece_config.blocks.0.y);
+        blocks
+            .get_mut(1)
+            .unwrap()
+            .set(piece_config.blocks.1.x, piece_config.blocks.1.y);
+        blocks
+            .get_mut(2)
+            .unwrap()
+            .set(piece_config.blocks.2.x, piece_config.blocks.2.y);
+        blocks
+            .get_mut(3)
+            .unwrap()
+            .set(piece_config.blocks.3.x, piece_config.blocks.3.y);
+        transforms.get_mut(0).unwrap().translation = blocks.get(0).unwrap().translation();
+        transforms.get_mut(1).unwrap().translation = blocks.get(1).unwrap().translation();
+        transforms.get_mut(2).unwrap().translation = blocks.get(2).unwrap().translation();
+        transforms.get_mut(3).unwrap().translation = blocks.get(3).unwrap().translation();
+
+        // 更新piece角度
+        for (mut piece, _, _) in &mut query {
+            *piece = piece_config.piece;
         }
     }
 }
@@ -337,6 +356,138 @@ fn rotate_piece_i(piece_config: PieceConfig) -> PieceConfig {
         }
         _ => {
             panic!("No matched piece for Piece::I");
+        }
+    }
+}
+
+fn rotate_piece_j(piece_config: PieceConfig) -> PieceConfig {
+    unimplemented!()
+}
+fn rotate_piece_l(piece_config: PieceConfig) -> PieceConfig {
+    unimplemented!()
+}
+fn rotate_piece_s(piece_config: PieceConfig) -> PieceConfig {
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::S(RotationAngle::Angle0) | Piece::S(RotationAngle::Angle180) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::S(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        Piece::S(RotationAngle::Angle90) | Piece::S(RotationAngle::Angle270) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y + 1;
+            return PieceConfig::new(
+                Piece::S(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::S");
+        }
+    }
+}
+fn rotate_piece_t(piece_config: PieceConfig) -> PieceConfig {
+    unimplemented!()
+}
+fn rotate_piece_z(piece_config: PieceConfig) -> PieceConfig {
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::Z(RotationAngle::Angle0) | Piece::Z(RotationAngle::Angle180) => {
+            let new_min_x = min_x + 1;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::Z(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 2,
+                    },
+                ),
+            );
+        }
+        Piece::Z(RotationAngle::Angle90) | Piece::Z(RotationAngle::Angle270) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y;
+            return PieceConfig::new(
+                Piece::Z(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::Z");
         }
     }
 }
