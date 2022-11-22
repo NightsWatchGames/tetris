@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 use crate::piece::*;
 use crate::stats::*;
+use crate::common::*;
 
 // 正方形方块边长
 pub const BLOCK_LENGTH: f32 = 30.0;
@@ -128,7 +129,7 @@ pub fn setup_game_board(mut commands: Commands) {
 }
 
 // 检查是否有成功的行
-pub fn check_line(
+pub fn check_full_line(
     mut commands: Commands,
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
@@ -145,19 +146,19 @@ pub fn check_line(
             y_to_x_set_map.insert(block.y, x_set);
         }
     }
-    let mut successful_lines = Vec::new();
+    let mut full_lines = Vec::new();
     for (y, x_set) in y_to_x_set_map.iter() {
         if x_set.len() == 10 {
-            successful_lines.push(y);
+            full_lines.push(y);
         }
     }
-    if successful_lines.len() > 0 {
-        dbg!(successful_lines.len());
+    if full_lines.len() > 0 {
+        dbg!(full_lines.len());
     }
     // 行数增加
-    lines.0 += successful_lines.len() as u32;
+    lines.0 += full_lines.len() as u32;
     // 分数增加
-    score.0 += match successful_lines.len() {
+    score.0 += match full_lines.len() {
         0 => { 0 },
         1 => { 100 },
         2 => { 200 },
@@ -168,7 +169,7 @@ pub fn check_line(
 
     // 消除行
     let mut despawn_entities = Vec::new();
-    for line_no in successful_lines.iter() {
+    for line_no in full_lines.iter() {
         let line_no = line_no.clone().to_owned();
         for (entity, block, _) in &mut query {
             if block.y == line_no {
@@ -180,7 +181,7 @@ pub fn check_line(
     // 其余行向下移
     for (entity, mut block, mut transform) in &mut query {
         if !despawn_entities.contains(&entity) {
-            block.y -= successful_lines.len() as u32;
+            block.y -= full_lines.len() as u32;
             transform.translation = block.translation();
         }
     }
@@ -188,7 +189,10 @@ pub fn check_line(
 
 
 // 检查是否游戏结束
-pub fn check_game_over(query: Query<&Block, Without<Piece>>, mut game_over_events: EventWriter<GameOverEvent>,) {
+pub fn check_game_over(
+    mut state: ResMut<State<AppState>>,
+    query: Query<&Block, Without<Piece>>, 
+    mut game_over_events: EventWriter<GameOverEvent>,) {
     let mut max_block_y = 0;
     for block in &query {
         if block.y > max_block_y {
@@ -197,5 +201,6 @@ pub fn check_game_over(query: Query<&Block, Without<Piece>>, mut game_over_event
     }
     if max_block_y >= 19 {
         game_over_events.send(GameOverEvent::default());
+        state.set(AppState::GameOver).unwrap();
     }
 }
