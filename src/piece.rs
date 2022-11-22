@@ -116,28 +116,32 @@ pub struct AutoMovePieceDownTimer(pub Timer);
 
 // 手动移动四格骨牌
 pub fn manually_move_piece(
+    mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Block, &mut Transform, &Movable), With<Piece>>,
+    mut query: Query<(Entity, &mut Block, &mut Transform, &Movable), With<Piece>>,
 ) {
     if keyboard_input.pressed(KeyCode::Left) {
-        for (mut block, mut transform, movable) in &mut query {
+        for (_, mut block, mut transform, movable) in &mut query {
             if movable.can_left {
                 block.x -= 1;
                 transform.translation = block.translation();
             }
         }
     } else if keyboard_input.pressed(KeyCode::Right) {
-        for (mut block, mut transform, movable) in &mut query {
+        for (_, mut block, mut transform, movable) in &mut query {
             if movable.can_right {
                 block.x += 1;
                 transform.translation = block.translation();
             }
         }
     } else if keyboard_input.pressed(KeyCode::Down) {
-        for (mut block, mut transform, movable) in &mut query {
+        for (entity, mut block, mut transform, movable) in &mut query {
             if movable.can_down {
                 block.y -= 1;
                 transform.translation = block.translation();
+            } else {
+                // 移除piece组件
+                commands.entity(entity).remove::<Piece>();
             }
         }
     }

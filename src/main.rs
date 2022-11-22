@@ -34,7 +34,7 @@ fn main() {
         .add_system(auto_move_piece_down)
         .add_system_to_stage(CoreStage::PostUpdate, check_collision)
         .add_system(auto_generate_new_piece)
-        .add_system(check_line)
+        .add_system_to_stage(CoreStage::PostUpdate, check_line)
         .add_system(rotate_piece)
         .add_system(check_game_over)
         .add_system(game_over_menu)

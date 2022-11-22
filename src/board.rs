@@ -13,7 +13,7 @@ pub const BLOCK_LENGTH: f32 = 30.0;
 pub const BORDER_THICKNESS: f32 = 10.0;
 
 // 方块
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Copy, Debug)]
 pub struct Block {
     pub x: u32,
     pub y: u32,
@@ -137,7 +137,7 @@ pub fn check_line(
     let mut y_to_x_set_map: HashMap<u32, HashSet<u32>> = HashMap::new();
     for (_, block, _) in &query {
         if y_to_x_set_map.contains_key(&block.y) {
-            let mut x_set = y_to_x_set_map.get_mut(&block.y).unwrap();
+            let x_set = y_to_x_set_map.get_mut(&block.y).unwrap();
             x_set.insert(block.x);
         } else {
             let mut x_set = HashSet::new();
@@ -151,6 +151,9 @@ pub fn check_line(
             successful_lines.push(y);
         }
     }
+    if successful_lines.len() > 0 {
+        dbg!(successful_lines.len());
+    }
     // 行数增加
     lines.0 += successful_lines.len() as u32;
     // 分数增加
@@ -163,18 +166,22 @@ pub fn check_line(
         _ => { panic!("No matched score") },
     };
 
-    for line_no in successful_lines {
-        let line_no = line_no.clone();
-        for (entity, mut block, mut transform) in &mut query {
+    // 消除行
+    let mut despawn_entities = Vec::new();
+    for line_no in successful_lines.iter() {
+        let line_no = line_no.clone().to_owned();
+        for (entity, block, _) in &mut query {
             if block.y == line_no {
-                // 消除
+                despawn_entities.push(entity);
                 commands.entity(entity).despawn();
             }
-            if block.y > line_no {
-                // 向下移
-                block.y -= 1;
-                transform.translation = block.translation();
-            }
+        }
+    }
+    // 其余行向下移
+    for (entity, mut block, mut transform) in &mut query {
+        if !despawn_entities.contains(&entity) {
+            block.y -= successful_lines.len() as u32;
+            transform.translation = block.translation();
         }
     }
 }
