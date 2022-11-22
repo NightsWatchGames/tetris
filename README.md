@@ -2,6 +2,7 @@
 俄罗斯方块游戏。
 - [ ] 暂停、恢复和重新开始游戏
 - [ ] 窗口大小自适应
+- [ ] 支持web
 
 阅读
 - https://caballerocoll.com/blog/bevy-chess-tutorial/

@@ -225,7 +225,6 @@ pub fn check_collision(
     }
 }
 
-// TODO 旋转四格骨牌
 // TODO 旋转不能产生碰撞（进入物体）
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
@@ -644,7 +643,115 @@ fn rotate_piece_s(piece_config: PieceConfig) -> PieceConfig {
     }
 }
 fn rotate_piece_t(piece_config: PieceConfig) -> PieceConfig {
-    unimplemented!()
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::T(RotationAngle::Angle0) => {
+            let new_min_x = min_x + 1;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::T(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        Piece::T(RotationAngle::Angle90) => {
+            let new_min_x = min_x - 1;
+            let new_min_y = min_y;
+            return PieceConfig::new(
+                Piece::T(RotationAngle::Angle180),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        Piece::T(RotationAngle::Angle180) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y;
+            return PieceConfig::new(
+                Piece::T(RotationAngle::Angle270),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 2,
+                    },
+                ),
+            );
+        }
+        Piece::T(RotationAngle::Angle270) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y + 1;
+            return PieceConfig::new(
+                Piece::T(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::T");
+        }
+    }
 }
 fn rotate_piece_z(piece_config: PieceConfig) -> PieceConfig {
     let min_x = piece_config.blocks.min_x();
