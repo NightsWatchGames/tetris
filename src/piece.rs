@@ -361,10 +361,226 @@ fn rotate_piece_i(piece_config: PieceConfig) -> PieceConfig {
 }
 
 fn rotate_piece_j(piece_config: PieceConfig) -> PieceConfig {
-    unimplemented!()
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::J(RotationAngle::Angle0) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::J(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 2,
+                    },
+                ),
+            );
+        }
+        Piece::J(RotationAngle::Angle90) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y + 1;
+            return PieceConfig::new(
+                Piece::J(RotationAngle::Angle180),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y,
+                    },
+                ),
+            );
+        }
+        Piece::J(RotationAngle::Angle180) => {
+            let new_min_x = min_x + 1;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::J(RotationAngle::Angle270),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 2,
+                    },
+                ),
+            );
+        }
+        Piece::J(RotationAngle::Angle270) => {
+            let new_min_x = min_x - 1;
+            let new_min_y = min_y;
+            return PieceConfig::new(
+                Piece::J(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::J");
+        }
+    }
 }
 fn rotate_piece_l(piece_config: PieceConfig) -> PieceConfig {
-    unimplemented!()
+    let min_x = piece_config.blocks.min_x();
+    let max_x = piece_config.blocks.max_x();
+    let min_y = piece_config.blocks.min_y();
+    let max_y = piece_config.blocks.max_y();
+    match piece_config.piece {
+        Piece::L(RotationAngle::Angle0) => {
+            let new_min_x = min_x + 1;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::L(RotationAngle::Angle90),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                ),
+            );
+        }
+        Piece::L(RotationAngle::Angle90) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y;
+            return PieceConfig::new(
+                Piece::L(RotationAngle::Angle180),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        Piece::L(RotationAngle::Angle180) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y - 1;
+            return PieceConfig::new(
+                Piece::L(RotationAngle::Angle270),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y + 2,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 1,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y + 2,
+                    },
+                ),
+            );
+        }
+        Piece::L(RotationAngle::Angle270) => {
+            let new_min_x = min_x;
+            let new_min_y = min_y + 1;
+            return PieceConfig::new(
+                Piece::L(RotationAngle::Angle0),
+                Piece4Blocks(
+                    Block {
+                        x: new_min_x,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 1,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y,
+                    },
+                    Block {
+                        x: new_min_x + 2,
+                        y: new_min_y + 1,
+                    },
+                ),
+            );
+        }
+        _ => {
+            panic!("No matched piece for Piece::L");
+        }
+    }
 }
 fn rotate_piece_s(piece_config: PieceConfig) -> PieceConfig {
     let min_x = piece_config.blocks.min_x();
