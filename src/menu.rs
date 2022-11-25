@@ -1,3 +1,4 @@
+use bevy::app::AppExit;
 use bevy::prelude::*;
 
 use crate::{board::*, common::AppState};
@@ -22,14 +23,13 @@ pub enum MenuButtonAction {
 
 pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     println!("Show main menu");
-    let button_entity = commands
+    commands
         .spawn((
             NodeBundle {
                 style: Style {
-                    // center button
                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
                 ..default()
@@ -38,37 +38,90 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         ))
         .with_children(|parent| {
             parent
-                .spawn((
-                    ButtonBundle {
-                        style: Style {
-                            size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                            // horizontally center child text
-                            justify_content: JustifyContent::Center,
-                            // vertically center child text
-                            align_items: AlignItems::Center,
-                            ..default()
-                        },
-                        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                    MenuButtonAction::StartGame,
-                ))
+                    background_color: Color::CRIMSON.into(),
+                    ..default()
+                })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        "Start",
-                        TextStyle {
-                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                            font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
-                        },
-                    ));
+                    // 标题
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Tetris Main Menu",
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 25.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(20.0)),
+                            ..default()
+                        }),
+                    );
+
+                    // 开始按钮
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Px(50.0), Val::Px(30.0)),
+                                    margin: UiRect::all(Val::Px(10.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                ..default()
+                            },
+                            MenuButtonAction::StartGame,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Start",
+                                TextStyle {
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 20.0,
+                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                },
+                            ));
+                        });
+
+                    // 退出按钮
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Px(50.0), Val::Px(30.0)),
+                                    margin: UiRect::all(Val::Px(10.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                ..default()
+                            },
+                            MenuButtonAction::Quit,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Quit",
+                                TextStyle {
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 20.0,
+                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                },
+                            ));
+                        });
                 });
-        })
-        .id();
+        });
 }
 
 pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    println!("Show game over menu");
     let button_entity = commands
         .spawn((
             NodeBundle {
@@ -120,6 +173,7 @@ pub fn click_button(
         (Changed<Interaction>, With<Button>),
     >,
     mut state: ResMut<State<AppState>>,
+    mut exit: EventWriter<AppExit>,
 ) {
     for (interaction, menu_button_action) in &mut interaction_query {
         match *interaction {
@@ -139,6 +193,10 @@ pub fn click_button(
                 MenuButtonAction::ResumeGame => {
                     info!("ResumeGame button clicked");
                     state.set(AppState::GamePlaying).unwrap()
+                }
+                MenuButtonAction::Quit => {
+                    info!("Quit button clicked");
+                    exit.send_default();
                 }
                 _ => {}
             },
