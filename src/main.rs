@@ -21,22 +21,31 @@ fn main() {
         .insert_resource(Lines(0))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_plugins(DefaultPlugins)
-        .add_state(AppState::GamePlaying) // TODO
+        .add_state(AppState::MainMenu)
         .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
         .add_event::<GameOverEvent>()
         .add_system_set(
+            SystemSet::on_enter(AppState::MainMenu)
+                .with_system(setup_main_menu)
+                .with_system(clear_board),
+        )
+        .add_system_set(SystemSet::on_update(AppState::MainMenu).with_system(click_button))
+        .add_system_set(
+            SystemSet::on_exit(AppState::MainMenu).with_system(despawn_screen::<OnMainMenuScreen>),
+        )
+        .add_system_set(
             SystemSet::on_update(AppState::GamePlaying)
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64)) // TODO 加了FixedTimestep后无法通过State控制
                 .with_system(manually_move_piece),
         )
         .add_system_set_to_stage(
-            CoreStage::Update,  // TODO 无法改成PostUpdate
+            CoreStage::Update, // TODO 无法改成PostUpdate
             SystemSet::on_update(AppState::GamePlaying)
-            .with_system(check_collision)
-            .with_system(check_full_line)
+                .with_system(check_collision)
+                .with_system(check_full_line),
         )
         .add_system_set_to_stage(
             CoreStage::Update,
@@ -46,10 +55,14 @@ fn main() {
                 .with_system(auto_move_piece_down)
                 .with_system(auto_generate_new_piece)
                 .with_system(update_scoreboard)
-                .with_system(update_linesboard)
+                .with_system(update_linesboard),
         )
         .add_system_set(SystemSet::on_enter(AppState::GameOver).with_system(setup_game_over_menu))
-        .add_system_set(SystemSet::on_update(AppState::GameOver).with_system(debug_game_over_menu))
+        .add_system_set(SystemSet::on_update(AppState::GameOver).with_system(click_button))
+        .add_system_set(
+            SystemSet::on_exit(AppState::GameOver)
+                .with_system(despawn_screen::<OnGameOverMenuScreen>),
+        )
         .run();
 }
 

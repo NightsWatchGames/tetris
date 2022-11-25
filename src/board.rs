@@ -204,3 +204,9 @@ pub fn check_game_over(
         state.set(AppState::GameOver).unwrap();
     }
 }
+
+pub fn clear_board(mut commands: Commands, query: Query<Entity, With<Block>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
+}
