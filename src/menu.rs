@@ -22,7 +22,6 @@ pub enum MenuButtonAction {
 }
 
 pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    println!("Show main menu");
     commands
         .spawn((
             NodeBundle {
@@ -122,14 +121,13 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let button_entity = commands
+    commands
         .spawn((
             NodeBundle {
                 style: Style {
-                    // center button
                     size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                    justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
                 ..default()
@@ -138,33 +136,87 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
         ))
         .with_children(|parent| {
             parent
-                .spawn((
-                    ButtonBundle {
-                        style: Style {
-                            size: Size::new(Val::Px(200.0), Val::Px(65.0)),
-                            // horizontally center child text
-                            justify_content: JustifyContent::Center,
-                            // vertically center child text
-                            align_items: AlignItems::Center,
-                            ..default()
-                        },
-                        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                    MenuButtonAction::BackToMainMenu,
-                ))
+                    background_color: Color::CRIMSON.into(),
+                    ..default()
+                })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        "Main Menu",
-                        TextStyle {
-                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                            font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
-                        },
-                    ));
+                    // 标题
+                    parent.spawn(
+                        TextBundle::from_section(
+                            "Game Over",
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 25.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::all(Val::Px(20.0)),
+                            ..default()
+                        }),
+                    );
+
+                    // 返回主菜单按钮
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    margin: UiRect::all(Val::Px(10.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                ..default()
+                            },
+                            MenuButtonAction::BackToMainMenu,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Main Menu",
+                                TextStyle {
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 20.0,
+                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                },
+                            ));
+                        });
+
+                    // 重新开始按钮
+                    parent
+                        .spawn((
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    margin: UiRect::all(Val::Px(10.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                ..default()
+                            },
+                            MenuButtonAction::RestartGame,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Restart",
+                                TextStyle {
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 20.0,
+                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                },
+                            ));
+                        });
                 });
-        })
-        .id();
+        });
 }
 
 pub fn click_button(
@@ -184,7 +236,7 @@ pub fn click_button(
                 }
                 MenuButtonAction::RestartGame => {
                     info!("RestartGame button clicked");
-                    state.set(AppState::MainMenu).unwrap()
+                    state.set(AppState::GamePlaying).unwrap()
                 }
                 MenuButtonAction::BackToMainMenu => {
                     info!("BackToMainMenu button clicked");

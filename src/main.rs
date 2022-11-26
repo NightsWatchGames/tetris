@@ -61,7 +61,8 @@ fn main() {
         .add_system_set(SystemSet::on_update(AppState::GameOver).with_system(click_button))
         .add_system_set(
             SystemSet::on_exit(AppState::GameOver)
-                .with_system(despawn_screen::<OnGameOverMenuScreen>),
+                .with_system(despawn_screen::<OnGameOverMenuScreen>)
+                .with_system(clear_board),
         )
         .run();
 }
