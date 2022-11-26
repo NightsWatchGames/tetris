@@ -190,7 +190,8 @@ pub fn check_full_line(
 
 // 检查是否游戏结束
 pub fn check_game_over(
-    mut state: ResMut<State<AppState>>,
+    mut app_state: ResMut<State<AppState>>,
+    mut game_state: ResMut<State<GameState>>,
     query: Query<&Block, Without<Piece>>, 
     mut game_over_events: EventWriter<GameOverEvent>,) {
     let mut max_block_y = 0;
@@ -201,7 +202,8 @@ pub fn check_game_over(
     }
     if max_block_y >= 19 {
         game_over_events.send(GameOverEvent::default());
-        state.set(AppState::GameOver).unwrap();
+        app_state.set(AppState::GameOver).unwrap();
+        game_state.set(GameState::GameQuitted).unwrap();
     }
 }
 

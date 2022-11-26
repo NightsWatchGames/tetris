@@ -79,3 +79,11 @@ pub fn update_linesboard(lines: Res<Lines>, mut query: Query<&mut Text, With<Lin
     let mut text = query.single_mut();
     text.sections[1].value = lines.0.to_string();
 }
+
+pub fn clear_score(mut score: ResMut<Score>) {
+    score.0 = 0;
+}
+
+pub fn clear_lines(mut lines: ResMut<Lines>) {
+    lines.0 = 0;
+}
