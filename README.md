@@ -7,6 +7,8 @@
 - [ ] 背景音乐和音效
 - [ ] 窗口大小自适应
 
+在线游玩：[点这里](https://nightswatchgames.github.io/games/tetris/)（电脑版Chrome/Firefox打开）
+
 ## 运行
 1. 本地运行
 ```
