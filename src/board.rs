@@ -9,6 +9,8 @@ use crate::common::*;
 
 // 正方形方块边长
 pub const BLOCK_LENGTH: f32 = 30.0;
+// 正方形方块贴纸边长
+pub const BLOCK_STICKER_LENGTH: f32 = 28.0;
 
 // game board 边界厚度
 pub const BORDER_THICKNESS: f32 = 10.0;

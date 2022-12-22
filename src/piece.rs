@@ -830,7 +830,7 @@ pub fn auto_generate_new_piece(
         let new_sprite_bundle = |block: &Block, color: Color| SpriteBundle {
             sprite: Sprite { color, ..default() },
             transform: Transform {
-                scale: Vec3::new(BLOCK_LENGTH, BLOCK_LENGTH, BLOCK_LENGTH),
+                scale: Vec3::new(BLOCK_STICKER_LENGTH, BLOCK_STICKER_LENGTH, BLOCK_STICKER_LENGTH),
                 translation: block.translation(),
                 ..default()
             },
