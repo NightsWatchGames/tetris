@@ -3,9 +3,26 @@
 - [x] 游戏基础玩法（随机四格骨牌、骨牌旋转、骨牌移动、消除行、计分）
 - [x] 游戏UI
 - [x] 暂停、恢复和重新开始游戏
+- [x] 支持web
 - [ ] 背景音乐和音效
 - [ ] 窗口大小自适应
-- [ ] 支持web
+
+## 运行
+1. 本地运行
+```
+cargo run
+```
+2. WASM运行
+```
+rustup target install wasm32-unknown-unknown
+cargo install wasm-server-runner
+cargo run --target wasm32-unknown-unknown
+```
+```
+cargo install wasm-bindgen-cli
+cargo build --release --target wasm32-unknown-unknown
+wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/tetris.wasm
+```
 
 ## 游戏截图
 ![main menu](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/main_menu.png)
