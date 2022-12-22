@@ -59,13 +59,14 @@ fn main() {
         .add_system_set_to_stage(
             CoreStage::Update, // TODO 无法改成PostUpdate
             SystemSet::on_update(GameState::GamePlaying)
+                .with_system(remove_piece)
                 .with_system(check_collision)
-                .with_system(check_full_line),
+                .with_system(check_game_over.after(remove_piece))
+                .with_system(check_full_line.after(remove_piece)),
         )
         .add_system_set_to_stage(
             CoreStage::Update,
             SystemSet::on_update(GameState::GamePlaying)
-                .with_system(check_game_over)
                 .with_system(rotate_piece)
                 .with_system(auto_move_piece_down)
                 .with_system(auto_generate_new_piece)

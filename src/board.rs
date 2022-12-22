@@ -128,6 +128,15 @@ pub fn setup_game_board(mut commands: Commands) {
     });
 }
 
+// 当piece移到底部后，移除piece组件
+pub fn remove_piece(mut commands: Commands, mut query: Query<(Entity, &Movable), With<Piece>>) {
+    for (entity, movable) in &query {
+        if !movable.can_down {
+            commands.entity(entity).remove::<Piece>();
+        }
+    }
+}
+
 // 检查是否有成功的行
 pub fn check_full_line(
     mut commands: Commands,
@@ -200,6 +209,7 @@ pub fn check_game_over(
             max_block_y = block.y;
         }
     }
+    info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
         game_over_events.send(GameOverEvent::default());
         app_state.set(AppState::GameOver).unwrap();

@@ -149,11 +149,9 @@ pub fn manually_move_piece(
 
 // 自动向下移动四格骨牌
 pub fn auto_move_piece_down(
-    mut commands: Commands,
     time: Res<Time>,
     mut query: Query<
         (
-            Entity,
             &mut AutoMovePieceDownTimer,
             &mut Block,
             &mut Transform,
@@ -162,16 +160,13 @@ pub fn auto_move_piece_down(
         With<Piece>,
     >,
 ) {
-    for (entity, mut timer, mut block, mut transform, movable) in &mut query {
+    for (mut timer, mut block, mut transform, movable) in &mut query {
         timer.tick(time.delta());
 
         if timer.just_finished() {
             if movable.can_down {
                 block.y -= 1;
                 transform.translation = block.translation();
-            } else {
-                // 移除piece组件
-                commands.entity(entity).remove::<Piece>();
             }
         }
     }
