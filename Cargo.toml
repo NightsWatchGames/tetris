@@ -10,5 +10,6 @@ rand = "0.8.0"
 [dependencies.bevy]
 version = "0.9"
 features = [
-    "bmp"
+    "bmp",
+    "wav"
 ]

@@ -146,6 +146,8 @@ pub fn check_full_line(
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
     mut query: Query<(Entity, &mut Block, &mut Transform), Without<Piece>>,
+    audio: Res<Audio>,
+    game_audios: Res<GameAudios>,
 ) {
     let mut y_to_x_set_map: HashMap<u32, HashSet<u32>> = HashMap::new();
     for (_, block, _) in &query {
@@ -166,6 +168,7 @@ pub fn check_full_line(
     }
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
+        audio.play(game_audios.line_clear.clone());
     }
     // 行数增加
     lines.0 += full_lines.len() as u32;
@@ -210,7 +213,10 @@ pub fn check_game_over(
     mut app_state: ResMut<State<AppState>>,
     mut game_state: ResMut<State<GameState>>,
     query: Query<&Block, Without<Piece>>, 
-    mut game_over_events: EventWriter<GameOverEvent>,) {
+    mut game_over_events: EventWriter<GameOverEvent>,
+    audio: Res<Audio>,
+    game_audios: Res<GameAudios>,
+) {
     let mut max_block_y = 0;
     for block in &query {
         if block.y > max_block_y {
@@ -219,6 +225,7 @@ pub fn check_game_over(
     }
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
+        audio.play(game_audios.gameover.clone());
         game_over_events.send(GameOverEvent::default());
         app_state.set(AppState::GameOver).unwrap();
         game_state.set(GameState::GameQuitted).unwrap();

@@ -1,4 +1,4 @@
-use crate::board::*;
+use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -119,12 +119,15 @@ pub fn manually_move_piece(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(Entity, &mut Block, &mut Transform, &Movable), With<Piece>>,
+    audio: Res<Audio>,
+    game_audios: Res<GameAudios>,
 ) {
     if keyboard_input.pressed(KeyCode::Left) {
         for (_, mut block, mut transform, movable) in &mut query {
             if movable.can_left {
                 block.x -= 1;
                 transform.translation = block.translation();
+                audio.play(game_audios.drop.clone());
             }
         }
     } else if keyboard_input.pressed(KeyCode::Right) {
@@ -132,6 +135,7 @@ pub fn manually_move_piece(
             if movable.can_right {
                 block.x += 1;
                 transform.translation = block.translation();
+                audio.play(game_audios.drop.clone());
             }
         }
     } else if keyboard_input.pressed(KeyCode::Down) {
@@ -139,6 +143,8 @@ pub fn manually_move_piece(
             if movable.can_down {
                 block.y -= 1;
                 transform.translation = block.translation();
+                audio.play(game_audios.drop.clone());
+            // TODO remove
             } else {
                 // 移除piece组件
                 commands.entity(entity).remove::<Piece>();
@@ -159,6 +165,8 @@ pub fn auto_move_piece_down(
         ),
         With<Piece>,
     >,
+    audio: Res<Audio>,
+    game_audios: Res<GameAudios>,
 ) {
     for (mut timer, mut block, mut transform, movable) in &mut query {
         timer.tick(time.delta());
@@ -167,6 +175,7 @@ pub fn auto_move_piece_down(
             if movable.can_down {
                 block.y -= 1;
                 transform.translation = block.translation();
+                audio.play(game_audios.drop.clone());
             }
         }
     }

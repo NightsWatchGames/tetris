@@ -27,6 +27,7 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
+        .add_startup_system(setup_game_audios)
         .add_event::<GameOverEvent>()
         // Main Menu
         .add_system_set(
