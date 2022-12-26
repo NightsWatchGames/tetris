@@ -44,6 +44,7 @@ impl Block {
 }
 
 pub fn setup_game_board(mut commands: Commands) {
+    // 三维坐标原点在board中央
     // 左侧边界
     commands.spawn(SpriteBundle {
         transform: Transform {

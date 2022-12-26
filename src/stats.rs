@@ -1,5 +1,11 @@
 use bevy::prelude::*;
 
+use crate::board::BLOCK_LENGTH;
+
+// 计分板长宽
+const STATS_BOARD_LENGTH: f32 = 250.0;
+const STATS_BOARD_WIDTH: f32 = 50.0;
+
 // 分数
 #[derive(Resource)]
 pub struct Score(pub u32);
@@ -12,7 +18,12 @@ pub struct Lines(pub u32);
 #[derive(Component)]
 pub struct Linesboard;
 
-pub fn setup_stats_boards(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_stats_boards(mut commands: Commands, asset_server: Res<AssetServer>, windows: Res<Windows>) {
+    // 通过窗口大小和棋盘大小计算stats位置
+    let window = windows.primary();
+    // gameboard左上角在窗口上的位置
+    let gameboard_left_corner_pos = (window.width() / 2.0 - 5.0 * BLOCK_LENGTH, window.height() / 2.0 - 10.0 * BLOCK_LENGTH);
+    info!("gameboard_left_corner_pos: {:?}", gameboard_left_corner_pos);
     // 分数
     commands.spawn(
         TextBundle::from_sections([
@@ -33,8 +44,8 @@ pub fn setup_stats_boards(mut commands: Commands, asset_server: Res<AssetServer>
         .with_style(Style {
             position_type: PositionType::Absolute,
             position: UiRect {
-                top: Val::Px(5.0),
-                left: Val::Px(5.0),
+                top: Val::Px(gameboard_left_corner_pos.1),
+                left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
             },
             ..default()
@@ -61,8 +72,8 @@ pub fn setup_stats_boards(mut commands: Commands, asset_server: Res<AssetServer>
         .with_style(Style {
             position_type: PositionType::Absolute,
             position: UiRect {
-                top: Val::Px(45.0),
-                left: Val::Px(5.0),
+                top: Val::Px(gameboard_left_corner_pos.1 + STATS_BOARD_WIDTH),
+                left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
             },
             ..default()
