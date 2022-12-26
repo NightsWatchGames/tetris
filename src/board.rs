@@ -16,7 +16,7 @@ pub const BLOCK_STICKER_LENGTH: f32 = 28.0;
 pub const BORDER_THICKNESS: f32 = 10.0;
 
 // 方块
-#[derive(Component, Clone, Copy, Debug)]
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Block {
     pub x: u32,
     pub y: u32,
@@ -30,6 +30,8 @@ impl Block {
         Block { x, y }
     }
     pub fn translation(&self) -> Vec3 {
+        // 方块xy原点为左下角
+        // 方块x范围0-9，方块y范围0-19
         // 10*20个方块
         Vec3 {
             x: (self.x as f32 - 5.0 + 0.5) * BLOCK_LENGTH,

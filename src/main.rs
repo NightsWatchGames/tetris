@@ -20,6 +20,7 @@ fn main() {
         .insert_resource(Score(0))
         .insert_resource(Lines(0))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
+        .insert_resource(NextPieceType ( None ))
         .add_plugins(DefaultPlugins)
         .add_state(AppState::MainMenu)
         .add_state(GameState::GameQuitted)
@@ -28,6 +29,7 @@ fn main() {
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
         .add_startup_system(setup_game_audios)
+        .add_startup_system(setup_piece_queue)
         .add_event::<GameOverEvent>()
         // Main Menu
         .add_system_set(
@@ -73,7 +75,8 @@ fn main() {
                 .with_system(auto_generate_new_piece)
                 .with_system(update_scoreboard)
                 .with_system(update_linesboard)
-                .with_system(pause_game),
+                .with_system(pause_game)
+                .with_system(update_next_piece),
         )
         // Game Paused
         .add_system_set(

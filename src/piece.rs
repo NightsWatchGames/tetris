@@ -1,9 +1,11 @@
+use std::collections::VecDeque;
+
 use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
 // 四格骨牌
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Piece {
     // ####
     I(RotationAngle),
@@ -34,7 +36,7 @@ pub enum Piece {
 }
 
 // 旋转角度
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RotationAngle {
     Angle0,
     Angle90,
@@ -68,8 +70,8 @@ impl PieceConfig {
     }
 }
 
-#[derive(Debug)]
-pub struct Piece4Blocks(Block, Block, Block, Block);
+#[derive(Debug, PartialEq, Eq)]
+pub struct Piece4Blocks(pub Block, pub Block, pub Block, pub Block);
 
 impl Piece4Blocks {
     pub fn from_vec(blocks: &Vec<Mut<Block>>) -> Self {
@@ -113,6 +115,16 @@ pub struct Movable {
 // 自动向下移动四格骨牌计时器
 #[derive(Component, Deref, DerefMut)]
 pub struct AutoMovePieceDownTimer(pub Timer);
+
+// 待生成的骨牌队列
+#[derive(Debug, Resource)]
+pub struct PieceQueue(pub VecDeque<PieceConfig>);
+
+pub fn setup_piece_queue(mut commands: Commands) {
+    let mut piece_queue = PieceQueue ( VecDeque::new() );
+    piece_queue.0.push_back(random_piece());
+    commands.insert_resource(piece_queue);
+}
 
 // 手动移动四格骨牌
 pub fn manually_move_piece(
@@ -829,12 +841,16 @@ pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&Piece>,
     game_over_events: EventReader<GameOverEvent>,
+    mut piece_queue: ResMut<PieceQueue>,
 ) {
     if !game_over_events.is_empty() {
         return;
     }
+    if piece_queue.0.len() < 2 {
+        piece_queue.0.push_back(random_piece());
+    }
     if query.is_empty() {
-        let piece_config = random_piece();
+        let piece_config = piece_queue.0.pop_front().unwrap();
         // 生成新的四格骨牌
         let new_sprite_bundle = |block: &Block, color: Color| SpriteBundle {
             sprite: Sprite { color, ..default() },
