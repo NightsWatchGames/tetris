@@ -5,7 +5,7 @@
 - [x] 暂停、恢复和重新开始游戏
 - [x] 支持web
 - [x] 音效
-- [ ] 展示下一个出现的骨牌
+- [x] 展示下一个骨牌
 - [ ] 窗口大小自适应
 
 在线游玩：[点这里](https://nightswatchgames.github.io/games/tetris/)（电脑版Chrome/Firefox打开）

@@ -24,7 +24,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_state(AppState::MainMenu)
         .add_state(GameState::GameQuitted)
-        .add_plugin(WorldInspectorPlugin::new())
+        // .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
@@ -38,6 +38,7 @@ fn main() {
                 .with_system(clear_board)
                 .with_system(clear_score)
                 .with_system(clear_lines)
+                .with_system(clear_next_piece)
         )
         .add_system_set(SystemSet::on_update(AppState::MainMenu).with_system(click_button))
         .add_system_set(
@@ -52,6 +53,7 @@ fn main() {
                 .with_system(clear_board)
                 .with_system(clear_score)
                 .with_system(clear_lines)
+                .with_system(clear_next_piece)
         )
         // Game Playing
         .add_system_set(

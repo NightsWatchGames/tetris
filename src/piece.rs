@@ -156,10 +156,6 @@ pub fn manually_move_piece(
                 block.y -= 1;
                 transform.translation = block.translation();
                 audio.play(game_audios.drop.clone());
-            // TODO remove
-            } else {
-                // 移除piece组件
-                commands.entity(entity).remove::<Piece>();
             }
         }
     }

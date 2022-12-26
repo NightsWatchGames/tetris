@@ -6,7 +6,7 @@ use crate::{
 };
 
 // 计分板长宽
-const STATS_BOARD_LENGTH: f32 = 250.0;
+const STATS_BOARD_LENGTH: f32 = 220.0;
 const STATS_BOARD_WIDTH: f32 = 50.0;
 
 // 分数
@@ -52,11 +52,14 @@ pub fn setup_stats_boards(
                         color: Color::rgb(0.5, 0.5, 1.0),
                     },
                 ),
-                TextSection::from_style(TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    font_size: 40.0,
-                    color: Color::rgb(1.0, 0.5, 0.5),
-                }),
+                TextSection::new(
+                    "0",
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                        font_size: 40.0,
+                        color: Color::rgb(1.0, 0.5, 0.5),
+                    },
+                ),
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
@@ -82,11 +85,14 @@ pub fn setup_stats_boards(
                         color: Color::rgb(0.5, 0.5, 1.0),
                     },
                 ),
-                TextSection::from_style(TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    font_size: 40.0,
-                    color: Color::rgb(1.0, 0.5, 0.5),
-                }),
+                TextSection::new(
+                    "0",
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                        font_size: 40.0,
+                        color: Color::rgb(1.0, 0.5, 0.5),
+                    },
+                ),
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
@@ -289,5 +295,11 @@ pub fn update_next_piece(
                     .insert(NextPiece);
             }
         }
+    }
+}
+
+pub fn clear_next_piece(mut commands: Commands, query: Query<Entity, With<NextPiece>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
     }
 }
