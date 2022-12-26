@@ -189,11 +189,16 @@ pub fn check_full_line(
             }
         }
     }
-    // 其余行向下移
-    for (entity, mut block, mut transform) in &mut query {
-        if !despawn_entities.contains(&entity) {
-            block.y -= full_lines.len() as u32;
-            transform.translation = block.translation();
+    // 消除行的上面block整体向下移
+    full_lines.sort();
+    full_lines.reverse();
+    for line_no in full_lines.iter() {
+        for (entity, mut block, mut transform) in &mut query {
+            if !despawn_entities.contains(&entity) && block.y > line_no.clone().to_owned() {
+                info!("down block: {:?}, line_no: {}", block, line_no);
+                block.y -= 1;
+                transform.translation = block.translation();
+            }
         }
     }
 }
@@ -211,7 +216,7 @@ pub fn check_game_over(
             max_block_y = block.y;
         }
     }
-    info!("max_block_y: {}", max_block_y);
+    // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
         game_over_events.send(GameOverEvent::default());
         app_state.set(AppState::GameOver).unwrap();
