@@ -4,6 +4,74 @@ use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
+lazy_static::lazy_static!(
+    static ref ALL_PIECES: Vec<PieceConfig> = vec![
+        PieceConfig::new(
+            Piece::I(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::J(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::L(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(5, 20),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::O(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+                Block::new(5, 20),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::S(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 19),
+                Block::new(4, 20),
+                Block::new(5, 20),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::T(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(3, 19),
+                Block::new(4, 20),
+                Block::new(4, 19),
+                Block::new(5, 19),
+            ),
+        ),
+        PieceConfig::new(
+            Piece::Z(RotationAngle::Angle0),
+            Piece4Blocks(
+                Block::new(4, 20),
+                Block::new(5, 20),
+                Block::new(5, 19),
+                Block::new(6, 19),
+            ),
+        ),
+    ];
+);
+
 // 四格骨牌
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Piece {
@@ -35,6 +103,10 @@ pub enum Piece {
     Z(RotationAngle),
 }
 
+impl Piece {
+    pub const PIECE_AMOUNT: u32 = 7;
+}
+
 // 旋转角度
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RotationAngle {
@@ -44,7 +116,7 @@ pub enum RotationAngle {
     Angle270,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PieceConfig {
     pub piece: Piece,
     pub blocks: Piece4Blocks,
@@ -70,7 +142,7 @@ impl PieceConfig {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Piece4Blocks(pub Block, pub Block, pub Block, pub Block);
 
 impl Piece4Blocks {
@@ -121,8 +193,8 @@ pub struct AutoMovePieceDownTimer(pub Timer);
 pub struct PieceQueue(pub VecDeque<PieceConfig>);
 
 pub fn setup_piece_queue(mut commands: Commands) {
-    let mut piece_queue = PieceQueue ( VecDeque::new() );
-    piece_queue.0.push_back(random_piece());
+    let mut piece_queue = PieceQueue(VecDeque::new());
+    piece_queue.0.extend(random_7_pieces());
     commands.insert_resource(piece_queue);
 }
 
@@ -842,8 +914,8 @@ pub fn auto_generate_new_piece(
     if !game_over_events.is_empty() {
         return;
     }
-    if piece_queue.0.len() < 2 {
-        piece_queue.0.push_back(random_piece());
+    if piece_queue.0.len() < Piece::PIECE_AMOUNT as usize {
+        piece_queue.0.extend(random_7_pieces());
     }
     if query.is_empty() {
         let piece_config = piece_queue.0.pop_front().unwrap();
@@ -851,7 +923,11 @@ pub fn auto_generate_new_piece(
         let new_sprite_bundle = |block: &Block, color: Color| SpriteBundle {
             sprite: Sprite { color, ..default() },
             transform: Transform {
-                scale: Vec3::new(BLOCK_STICKER_LENGTH, BLOCK_STICKER_LENGTH, BLOCK_STICKER_LENGTH),
+                scale: Vec3::new(
+                    BLOCK_STICKER_LENGTH,
+                    BLOCK_STICKER_LENGTH,
+                    BLOCK_STICKER_LENGTH,
+                ),
                 translation: block.translation(),
                 ..default()
             },
@@ -917,74 +993,49 @@ pub fn auto_generate_new_piece(
     }
 }
 
-fn random_piece() -> PieceConfig {
+// bag7算法实现随机：每次填充7个随机排序的骨牌
+fn random_7_pieces() -> Vec<PieceConfig> {
+    let mut result: Vec<PieceConfig> = Vec::new();
     let mut rng = rand::thread_rng();
-    match rng.gen_range(0..7) {
-        0 => PieceConfig::new(
-            Piece::I(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(6, 19),
-            ),
-        ),
-        1 => PieceConfig::new(
-            Piece::J(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(6, 19),
-            ),
-        ),
-        2 => PieceConfig::new(
-            Piece::L(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(5, 20),
-            ),
-        ),
-        3 => PieceConfig::new(
-            Piece::O(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(5, 20),
-            ),
-        ),
-        4 => PieceConfig::new(
-            Piece::S(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
-                Block::new(4, 20),
-                Block::new(5, 20),
-            ),
-        ),
-        5 => PieceConfig::new(
-            Piece::T(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
-            ),
-        ),
-        6 => PieceConfig::new(
-            Piece::Z(RotationAngle::Angle0),
-            Piece4Blocks(
-                Block::new(4, 20),
-                Block::new(5, 20),
-                Block::new(5, 19),
-                Block::new(6, 19),
-            ),
-        ),
-        _ => {
-            panic!("No matched piece")
+    let mut rand_ints: Vec<u32> = Vec::new();
+
+    loop {
+        let mut select = |rand_int: u32| {
+            if !rand_ints.contains(&rand_int) {
+                rand_ints.push(rand_int);
+                result.push(ALL_PIECES.get(rand_int as usize).unwrap().clone());
+            }
+        };
+        match rng.gen_range(0..Piece::PIECE_AMOUNT) {
+            0 => {
+                select(0);
+            }
+            1 => {
+                select(1);
+            }
+            2 => {
+                select(2);
+            }
+            3 => {
+                select(3);
+            }
+            4 => {
+                select(4);
+            }
+            5 => {
+                select(5);
+            }
+            6 => {
+                select(6);
+            }
+            _ => {
+                panic!("Random value is unexpected");
+            }
+        }
+        if result.len() == Piece::PIECE_AMOUNT as usize {
+            break;
         }
     }
+    // info!("random 7 pieces: {:?}", result);
+    result
 }
