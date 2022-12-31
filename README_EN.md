@@ -8,7 +8,7 @@
 - [x] Bag7 random algorithm
 - [ ] Window size adaptation
 
-Play online: [click here](https://nightswatchgames.github.io/games/tetris/)（Open with Chrome/Firefox/Edge）
+Play online: [click here](https://nightswatchgames.github.io/games/tetris/)（Open with PC Chrome/Firefox/Edge）
 
 ## Get started
 1. Native
