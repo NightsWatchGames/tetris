@@ -1,23 +1,21 @@
-[English](https://github.com/NightsWatchGames/tetris/blob/main/README_EN.md)
 # tetris
-俄罗斯方块游戏。
-- [x] 游戏基础玩法（随机四格骨牌、骨牌旋转、骨牌移动、消除行、计分）
-- [x] 游戏UI
-- [x] 游戏音效
-- [x] 支持暂停、恢复和重新开始游戏
-- [x] 支持web
-- [x] 展示下一个骨牌
-- [x] bag7随机算法
-- [ ] 窗口大小自适应
+- [x] Basic gameplay（random piece、piece rotation and move、clear full lines、scores）
+- [x] Game UI
+- [x] Game Audio
+- [x] Support pausing, resuming and restarting game
+- [x] Support web
+- [x] Display next piece
+- [x] Bag7 random algorithm
+- [ ] Window size adaptation
 
-在线游玩：[点这里](https://nightswatchgames.github.io/games/tetris/)（电脑版Chrome/Firefox/Edge打开）
+Play online: [click here](https://nightswatchgames.github.io/games/tetris/)（Open with Chrome/Firefox/Edge）
 
-## 运行
-1. 本地运行
+## Get started
+1. Native
 ```
 cargo run
 ```
-2. WASM运行
+2. WASM
 ```
 rustup target install wasm32-unknown-unknown
 cargo install wasm-server-runner
@@ -29,13 +27,13 @@ cargo build --release --target wasm32-unknown-unknown
 wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/tetris.wasm
 ```
 
-## 游戏截图
+## Screenshots
 ![main menu](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/main_menu.png)
 ![game playing](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_playing.png)
 ![game paused](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_paused.png)
 ![game over](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_over.png)
 
-## 参考资料
+## Reference
 - [Tetris - Wikipedia](https://en.wikipedia.org/wiki/Tetris)
 - [俄罗斯方块 - 百度百科](https://baike.baidu.com/item/%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/535753)
 - [Online tetris example1](https://tetris.com/play-tetris)
