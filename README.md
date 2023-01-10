@@ -8,7 +8,6 @@
 - [x] 支持web
 - [x] 展示下一个骨牌
 - [x] bag7随机算法
-- [ ] 窗口大小自适应
 
 在线游玩：[点这里](https://nightswatchgames.github.io/games/tetris/)（电脑版Chrome/Firefox/Edge打开）
 
@@ -29,7 +28,9 @@ cargo build --release --target wasm32-unknown-unknown
 wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/tetris.wasm
 ```
 
-## 游戏截图
+## 游戏展示
+视频演示：[B站](https://www.bilibili.com/video/BV1y44y1R72Z)
+
 ![main menu](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/main_menu.png)
 ![game playing](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_playing.png)
 ![game paused](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_paused.png)

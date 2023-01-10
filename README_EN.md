@@ -6,7 +6,6 @@
 - [x] Support web
 - [x] Display next piece
 - [x] Bag7 random algorithm
-- [ ] Window size adaptation
 
 Play online: [click here](https://nightswatchgames.github.io/games/tetris/)（Open with PC Chrome/Firefox/Edge）
 
@@ -28,6 +27,8 @@ wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/relea
 ```
 
 ## Screenshots
+Game video: [YouTube](https://www.youtube.com/watch?v=ovu1hYk-mn8)
+
 ![main menu](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/main_menu.png)
 ![game playing](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_playing.png)
 ![game paused](https://raw.githubusercontent.com/NightsWatchGames/tetris/main/screenshots/game_paused.png)
