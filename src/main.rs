@@ -15,6 +15,7 @@ mod stats;
 const BACKGROUND_COLOR: Color = Color::BLACK;
 const TIME_STEP: f32 = 1.0 / 10.0;
 
+// TODO 参考 https://github.com/dunnker/tetris-piston 优化代码
 fn main() {
     App::new()
         .insert_resource(Score(0))

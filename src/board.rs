@@ -9,6 +9,7 @@ use crate::common::*;
 
 // 正方形方块边长
 pub const BLOCK_LENGTH: f32 = 30.0;
+// TODO 贴纸圆角
 // 正方形方块贴纸边长
 pub const BLOCK_STICKER_LENGTH: f32 = 28.0;
 

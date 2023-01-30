@@ -905,6 +905,7 @@ fn rotate_piece_z(piece_config: PieceConfig) -> PieceConfig {
 
 // 自动生成新的四格骨牌
 // TODO 超出game board的不显示
+// TODO 新生成的piece应该从游戏窗口外落下，避免gameover时方块重叠
 pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&Piece>,
