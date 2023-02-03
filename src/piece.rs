@@ -108,6 +108,7 @@ impl Piece {
 }
 
 // 旋转角度
+// TODO 参考 https://github.com/kunieone/tetris_rs 重构旋转部分
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RotationAngle {
     Angle0,
