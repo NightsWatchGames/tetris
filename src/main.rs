@@ -84,6 +84,7 @@ fn main() {
                 update_linesboard,
                 pause_game,
                 update_next_piece,
+                control_piece_visibility,
             )
                 .on_update(GameState::GamePlaying),
         )

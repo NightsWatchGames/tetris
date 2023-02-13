@@ -9,64 +9,64 @@ lazy_static::lazy_static!(
         PieceConfig::new(
             Piece::I(RotationAngle::Angle0),
             Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(6, 19),
+                Block::new(3, 20),
+                Block::new(4, 20),
+                Block::new(5, 20),
+                Block::new(6, 20),
             ),
         ),
         PieceConfig::new(
             Piece::J(RotationAngle::Angle0),
             Piece4Blocks(
+                Block::new(4, 21),
                 Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
-                Block::new(6, 19),
+                Block::new(5, 20),
+                Block::new(6, 20),
             ),
         ),
         PieceConfig::new(
             Piece::L(RotationAngle::Angle0),
             Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
-                Block::new(5, 19),
+                Block::new(3, 20),
+                Block::new(4, 20),
                 Block::new(5, 20),
+                Block::new(5, 21),
             ),
         ),
         PieceConfig::new(
             Piece::O(RotationAngle::Angle0),
             Piece4Blocks(
+                Block::new(4, 21),
                 Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
                 Block::new(5, 20),
+                Block::new(5, 21),
             ),
         ),
         PieceConfig::new(
             Piece::S(RotationAngle::Angle0),
             Piece4Blocks(
-                Block::new(3, 19),
-                Block::new(4, 19),
+                Block::new(3, 20),
                 Block::new(4, 20),
-                Block::new(5, 20),
+                Block::new(4, 21),
+                Block::new(5, 21),
             ),
         ),
         PieceConfig::new(
             Piece::T(RotationAngle::Angle0),
             Piece4Blocks(
-                Block::new(3, 19),
+                Block::new(3, 20),
+                Block::new(4, 21),
                 Block::new(4, 20),
-                Block::new(4, 19),
-                Block::new(5, 19),
+                Block::new(5, 20),
             ),
         ),
         PieceConfig::new(
             Piece::Z(RotationAngle::Angle0),
             Piece4Blocks(
-                Block::new(4, 20),
+                Block::new(4, 21),
+                Block::new(5, 21),
                 Block::new(5, 20),
-                Block::new(5, 19),
-                Block::new(6, 19),
+                Block::new(6, 20),
             ),
         ),
     ];
@@ -391,6 +391,16 @@ pub fn rotate_piece(
         // 更新piece角度
         for (mut piece, _, _) in &mut query {
             *piece = piece_config.piece;
+        }
+    }
+}
+
+pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<Piece>>) {
+    for (mut visibility, block) in &mut q_piece {
+        if block.y > 19 {
+            *visibility = Visibility::Hidden;
+        } else {
+            *visibility = Visibility::Visible;
         }
     }
 }
@@ -916,8 +926,6 @@ fn rotate_piece_z(piece_config: PieceConfig) -> PieceConfig {
 }
 
 // 自动生成新的四格骨牌
-// TODO 超出game board的不显示
-// TODO 新生成的piece应该从游戏窗口外落下，避免gameover时方块重叠
 pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&Piece>,
@@ -944,6 +952,7 @@ pub fn auto_generate_new_piece(
                 translation: block.translation(),
                 ..default()
             },
+            visibility: Visibility::Hidden,
             ..default()
         };
         let color = piece_config.color;
