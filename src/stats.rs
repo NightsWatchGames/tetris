@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     board::{Block, BLOCK_LENGTH, BLOCK_STICKER_LENGTH},
     new_block_sprite,
-    piece::{Piece, Piece4Blocks, PieceConfig, PieceQueue},
+    piece::{PieceConfig, PieceQueue, PieceType},
 };
 
 // 计分板长宽
@@ -24,7 +24,7 @@ pub struct Linesboard;
 
 // 展示下一个骨牌
 #[derive(Debug, Resource)]
-pub struct NextPieceType(pub Option<Piece>);
+pub struct NextPieceType(pub Option<PieceType>);
 
 #[derive(Debug, Component)]
 pub struct NextPiece;
@@ -144,86 +144,86 @@ pub fn update_next_piece_board(
         let piece = piece_queue.0.front().unwrap().piece;
         let color = piece_queue.0.front().unwrap().color;
         match piece {
-            Piece::I(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 18),
-                    Block::new(12, 18),
-                    Block::new(13, 18),
-                    Block::new(14, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::I(_) => {
+                let blocks = [
+                    Block { x: 11, y: 18 },
+                    Block { x: 12, y: 18 },
+                    Block { x: 13, y: 18 },
+                    Block { x: 14, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::J(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 17),
-                    Block::new(12, 17),
-                    Block::new(13, 17),
-                    Block::new(11, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::J(_) => {
+                let blocks = [
+                    Block { x: 11, y: 17 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 13, y: 17 },
+                    Block { x: 11, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::L(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 17),
-                    Block::new(12, 17),
-                    Block::new(13, 17),
-                    Block::new(13, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::L(_) => {
+                let blocks = [
+                    Block { x: 11, y: 17 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 13, y: 17 },
+                    Block { x: 13, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::O(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 17),
-                    Block::new(12, 17),
-                    Block::new(11, 18),
-                    Block::new(12, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::O(_) => {
+                let blocks = [
+                    Block { x: 11, y: 17 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 11, y: 18 },
+                    Block { x: 12, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::S(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 17),
-                    Block::new(12, 17),
-                    Block::new(12, 18),
-                    Block::new(13, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::S(_) => {
+                let blocks = [
+                    Block { x: 11, y: 17 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 12, y: 18 },
+                    Block { x: 13, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::T(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 17),
-                    Block::new(12, 17),
-                    Block::new(13, 17),
-                    Block::new(12, 18),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::T(_) => {
+                let blocks = [
+                    Block { x: 11, y: 17 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 13, y: 17 },
+                    Block { x: 12, y: 18 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
-            Piece::Z(_) => {
-                let piece4blocks = Piece4Blocks(
-                    Block::new(11, 18),
-                    Block::new(12, 18),
-                    Block::new(12, 17),
-                    Block::new(13, 17),
-                );
-                spawn_next_piece_board(&mut commands, piece4blocks, color);
+            PieceType::Z(_) => {
+                let blocks = [
+                    Block { x: 11, y: 18 },
+                    Block { x: 12, y: 18 },
+                    Block { x: 12, y: 17 },
+                    Block { x: 13, y: 17 },
+                ];
+                spawn_next_piece_board(&mut commands, blocks, color);
             }
         }
     }
 }
 
-pub fn spawn_next_piece_board(commands: &mut Commands, piece4blocks: Piece4Blocks, color: Color) {
+pub fn spawn_next_piece_board(commands: &mut Commands, blocks: [Block; 4], color: Color) {
     let visibility = Visibility::Visible;
     commands
-        .spawn(new_block_sprite(&piece4blocks.0, color, visibility))
+        .spawn(new_block_sprite(&blocks[0], color, visibility))
         .insert(NextPiece);
     commands
-        .spawn(new_block_sprite(&piece4blocks.1, color, visibility))
+        .spawn(new_block_sprite(&blocks[1], color, visibility))
         .insert(NextPiece);
     commands
-        .spawn(new_block_sprite(&piece4blocks.2, color, visibility))
+        .spawn(new_block_sprite(&blocks[2], color, visibility))
         .insert(NextPiece);
     commands
-        .spawn(new_block_sprite(&piece4blocks.3, color, visibility))
+        .spawn(new_block_sprite(&blocks[3], color, visibility))
         .insert(NextPiece);
 }
 

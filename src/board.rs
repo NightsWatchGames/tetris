@@ -31,9 +31,6 @@ pub struct Block {
 pub struct GameOverEvent;
 
 impl Block {
-    pub fn new(x: u32, y: u32) -> Self {
-        Block { x, y }
-    }
     pub fn translation(&self) -> Vec3 {
         // 方块xy原点为左下角
         // 方块x范围0-9，方块y范围0-19
@@ -137,10 +134,13 @@ pub fn setup_game_board(mut commands: Commands) {
 }
 
 // 当piece移到底部后，移除piece组件
-pub fn remove_bottom_piece(mut commands: Commands, query: Query<(Entity, &Movable), With<Piece>>) {
+pub fn remove_bottom_piece(
+    mut commands: Commands,
+    query: Query<(Entity, &Movable), With<PieceType>>,
+) {
     for (entity, movable) in &query {
         if !movable.can_down {
-            commands.entity(entity).remove::<Piece>();
+            commands.entity(entity).remove::<PieceType>();
         }
     }
 }
@@ -150,7 +150,7 @@ pub fn check_full_line(
     mut commands: Commands,
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
-    mut query: Query<(Entity, &mut Block, &mut Transform), Without<Piece>>,
+    mut query: Query<(Entity, &mut Block, &mut Transform), Without<PieceType>>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
 ) {
@@ -218,7 +218,7 @@ pub fn check_full_line(
 pub fn check_game_over(
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
-    query: Query<&Block, Without<Piece>>,
+    query: Query<&Block, Without<PieceType>>,
     mut game_over_events: EventWriter<GameOverEvent>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
