@@ -7,6 +7,9 @@ use crate::common::*;
 use crate::piece::*;
 use crate::stats::*;
 
+// game board宽高
+pub const COL_COUNT: u8 = 10;
+pub const ROW_COUNT: u8 = 20;
 // 正方形方块边长
 pub const BLOCK_LENGTH: f32 = 30.0;
 // TODO 贴纸圆角
@@ -15,6 +18,7 @@ pub const BLOCK_STICKER_LENGTH: f32 = 28.0;
 
 // game board 边界厚度
 pub const BORDER_THICKNESS: f32 = 10.0;
+pub const BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 
 // 方块
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
@@ -35,8 +39,8 @@ impl Block {
         // 方块x范围0-9，方块y范围0-19
         // 10*20个方块
         Vec3 {
-            x: (self.x as f32 - 5.0 + 0.5) * BLOCK_LENGTH,
-            y: (self.y as f32 - 10.0 + 0.5) * BLOCK_LENGTH,
+            x: (self.x as f32 - (COL_COUNT as f32 / 2.0) + 0.5) * BLOCK_LENGTH,
+            y: (self.y as f32 - (ROW_COUNT as f32 / 2.0) + 0.5) * BLOCK_LENGTH,
             z: 0.0,
         }
     }
@@ -49,22 +53,23 @@ impl Block {
 pub fn setup_game_board(mut commands: Commands) {
     // 三维坐标原点在board中央
     // 左侧边界
+    let half_col_count = COL_COUNT as f32 / 2.0;
+    let half_raw_count = ROW_COUNT as f32 / 2.0;
     commands.spawn(SpriteBundle {
         transform: Transform {
             translation: Vec3 {
-                x: -5.0 * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
-                y: 0.0,
-                z: 0.0,
+                x: -half_col_count * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
+                ..default()
             },
             scale: Vec3 {
                 x: BORDER_THICKNESS,
-                y: 20.0 * BLOCK_LENGTH + 2.0 * BORDER_THICKNESS,
+                y: ROW_COUNT as f32 * BLOCK_LENGTH + 2.0 * BORDER_THICKNESS,
                 z: 0.0,
             },
             ..default()
         },
         sprite: Sprite {
-            color: Color::rgb(0.8, 0.8, 0.8),
+            color: BORDER_COLOR,
             ..default()
         },
         ..default()
@@ -73,19 +78,18 @@ pub fn setup_game_board(mut commands: Commands) {
     commands.spawn(SpriteBundle {
         transform: Transform {
             translation: Vec3 {
-                x: 5.0 * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
-                y: 0.0,
-                z: 0.0,
+                x: half_col_count * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
+                ..default()
             },
             scale: Vec3 {
                 x: BORDER_THICKNESS,
-                y: 20.0 * BLOCK_LENGTH + 2.0 * BORDER_THICKNESS,
+                y: ROW_COUNT as f32 * BLOCK_LENGTH + 2.0 * BORDER_THICKNESS,
                 z: 0.0,
             },
             ..default()
         },
         sprite: Sprite {
-            color: Color::rgb(0.8, 0.8, 0.8),
+            color: BORDER_COLOR,
             ..default()
         },
         ..default()
@@ -94,19 +98,18 @@ pub fn setup_game_board(mut commands: Commands) {
     commands.spawn(SpriteBundle {
         transform: Transform {
             translation: Vec3 {
-                x: 0.0,
-                y: 10.0 * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
-                z: 0.0,
+                y: half_raw_count * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
+                ..default()
             },
             scale: Vec3 {
-                x: 10.0 * BLOCK_LENGTH,
+                x: COL_COUNT as f32 * BLOCK_LENGTH,
                 y: BORDER_THICKNESS,
                 z: 0.0,
             },
             ..default()
         },
         sprite: Sprite {
-            color: Color::rgb(0.8, 0.8, 0.8),
+            color: BORDER_COLOR,
             ..default()
         },
         ..default()
@@ -115,19 +118,18 @@ pub fn setup_game_board(mut commands: Commands) {
     commands.spawn(SpriteBundle {
         transform: Transform {
             translation: Vec3 {
-                x: 0.0,
-                y: -10.0 * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
-                z: 0.0,
+                y: -half_raw_count * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
+                ..default()
             },
             scale: Vec3 {
-                x: 10.0 * BLOCK_LENGTH,
+                x: COL_COUNT as f32 * BLOCK_LENGTH,
                 y: BORDER_THICKNESS,
                 z: 0.0,
             },
             ..default()
         },
         sprite: Sprite {
-            color: Color::rgb(0.8, 0.8, 0.8),
+            color: BORDER_COLOR,
             ..default()
         },
         ..default()
@@ -165,7 +167,7 @@ pub fn check_full_line(
     }
     let mut full_lines = Vec::new();
     for (y, x_set) in y_to_x_set_map.iter() {
-        if x_set.len() == 10 {
+        if x_set.len() == COL_COUNT as usize {
             full_lines.push(y);
         }
     }
