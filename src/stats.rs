@@ -30,10 +30,10 @@ pub struct NextPiece;
 pub fn setup_stats_boards(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    windows: Res<Windows>,
+    windows: Query<&Window>,
 ) {
     // 通过窗口大小和棋盘大小计算stats位置
-    let window = windows.primary();
+    let window = windows.single();
     // gameboard左上角在窗口上的位置
     let gameboard_left_corner_pos = (
         window.width() / 2.0 - 5.0 * BLOCK_LENGTH,

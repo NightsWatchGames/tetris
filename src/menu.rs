@@ -353,8 +353,8 @@ pub fn click_button(
         (&Interaction, &MenuButtonAction),
         (Changed<Interaction>, With<Button>),
     >,
-    mut app_state: ResMut<State<AppState>>,
-    mut game_state: ResMut<State<GameState>>,
+    mut app_state: ResMut<NextState<AppState>>,
+    mut game_state: ResMut<NextState<GameState>>,
     mut exit: EventWriter<AppExit>,
 ) {
     for (interaction, menu_button_action) in &mut interaction_query {
@@ -362,29 +362,23 @@ pub fn click_button(
             Interaction::Clicked => match menu_button_action {
                 MenuButtonAction::StartGame => {
                     info!("StartGame button clicked");
-                    app_state.set(AppState::InGame).unwrap();
-                    game_state.set(GameState::GamePlaying).unwrap();
+                    app_state.set(AppState::InGame);
+                    game_state.set(GameState::GamePlaying);
                 }
                 MenuButtonAction::RestartGame => {
                     info!("RestartGame button clicked");
-                    if app_state.current().clone() != AppState::InGame {
-                        app_state.set(AppState::InGame).unwrap();
-                    }
-                    game_state.set(GameState::GameRestarted).unwrap();
+                    app_state.set(AppState::InGame);
+                    game_state.set(GameState::GameRestarted);
                 }
                 MenuButtonAction::BackToMainMenu => {
                     info!("BackToMainMenu button clicked");
-                    println!("{:?}", app_state.current());
-                    if app_state.current().clone() != AppState::MainMenu {
-                        app_state.set(AppState::MainMenu).unwrap();
-                    }
-                    if game_state.current().clone() != GameState::GameQuitted {
-                        game_state.set(GameState::GameQuitted).unwrap();
-                    }
+                    println!("{:?}", app_state.0);
+                    app_state.set(AppState::MainMenu);
+                    game_state.set(GameState::GameQuitted);
                 }
                 MenuButtonAction::ResumeGame => {
                     info!("ResumeGame button clicked");
-                    game_state.set(GameState::GamePlaying).unwrap();
+                    game_state.set(GameState::GamePlaying);
                 }
                 MenuButtonAction::Quit => {
                     info!("Quit button clicked");
@@ -397,16 +391,17 @@ pub fn click_button(
     }
 }
 
-pub fn pause_game(mut game_state: ResMut<State<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
+pub fn pause_game(
+    mut game_state: ResMut<NextState<GameState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
     if keyboard_input.pressed(KeyCode::Escape) {
-        if game_state.current().clone() != GameState::GamePaused {
-            game_state.set(GameState::GamePaused).unwrap();
-        }
+        game_state.set(GameState::GamePaused);
     }
 }
 
-pub fn play_game(mut game_state: ResMut<State<GameState>>) {
-    game_state.set(GameState::GamePlaying).unwrap();
+pub fn play_game(mut game_state: ResMut<NextState<GameState>>) {
+    game_state.set(GameState::GamePlaying);
 }
 
 pub fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {

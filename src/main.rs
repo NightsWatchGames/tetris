@@ -1,5 +1,5 @@
-use bevy::{prelude::*, time::FixedTimestep};
-use bevy_inspector_egui::prelude::*;
+use bevy::prelude::*;
+// use bevy_inspector_egui::prelude::*;
 use board::*;
 use common::*;
 use menu::*;
@@ -21,10 +21,10 @@ fn main() {
         .insert_resource(Score(0))
         .insert_resource(Lines(0))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
-        .insert_resource(NextPieceType ( None ))
+        .insert_resource(NextPieceType(None))
         .add_plugins(DefaultPlugins)
-        .add_state(AppState::MainMenu)
-        .add_state(GameState::GameQuitted)
+        .add_state::<AppState>()
+        .add_state::<GameState>()
         // .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
@@ -33,71 +33,73 @@ fn main() {
         .add_startup_system(setup_piece_queue)
         .add_event::<GameOverEvent>()
         // Main Menu
-        .add_system_set(
-            SystemSet::on_enter(AppState::MainMenu)
-                .with_system(setup_main_menu)
-                .with_system(clear_board)
-                .with_system(clear_score)
-                .with_system(clear_lines)
-                .with_system(clear_next_piece)
+        .add_systems_to_schedule(
+            OnEnter(AppState::MainMenu),
+            (
+                setup_main_menu,
+                clear_board,
+                clear_score,
+                clear_lines,
+                clear_next_piece,
+            ),
         )
-        .add_system_set(SystemSet::on_update(AppState::MainMenu).with_system(click_button))
-        .add_system_set(
-            SystemSet::on_exit(AppState::MainMenu).with_system(despawn_screen::<OnMainMenuScreen>),
+        .add_system(click_button.on_update(AppState::MainMenu))
+        .add_system_to_schedule(
+            OnExit(AppState::MainMenu),
+            despawn_screen::<OnMainMenuScreen>,
         )
         // Game Over Menu
-        .add_system_set(SystemSet::on_enter(AppState::GameOver).with_system(setup_game_over_menu))
-        .add_system_set(SystemSet::on_update(AppState::GameOver).with_system(click_button))
-        .add_system_set(
-            SystemSet::on_exit(AppState::GameOver)
-                .with_system(despawn_screen::<OnGameOverMenuScreen>)
-                .with_system(clear_board)
-                .with_system(clear_score)
-                .with_system(clear_lines)
-                .with_system(clear_next_piece)
+        .add_system_to_schedule(OnEnter(AppState::GameOver), setup_game_over_menu)
+        .add_system(click_button.on_update(AppState::GameOver))
+        .add_systems_to_schedule(
+            OnExit(AppState::GameOver),
+            (
+                despawn_screen::<OnGameOverMenuScreen>,
+                clear_board,
+                clear_score,
+                clear_lines,
+                clear_next_piece,
+            ),
         )
         // Game Playing
-        .add_system_set(
-            SystemSet::on_update(GameState::GamePlaying)
-                .with_run_criteria(FixedTimestep::step(TIME_STEP as f64)) // TODO 加了FixedTimestep后无法通过State控制
-                .with_system(manually_move_piece),
+        .add_system_to_schedule(CoreSchedule::FixedUpdate, manually_move_piece)
+        .insert_resource(FixedTime::new_from_secs(TIME_STEP))
+        // TODO 加了FixedTimestep后无法通过State控制
+        .add_systems(
+            (
+                remove_piece,
+                check_collision,
+                check_game_over.after(remove_piece),
+                check_full_line.after(remove_piece),
+            )
+                .on_update(GameState::GamePlaying),
         )
-        .add_system_set_to_stage(
-            CoreStage::Update, // TODO 无法改成PostUpdate
-            SystemSet::on_update(GameState::GamePlaying)
-                .with_system(remove_piece)
-                .with_system(check_collision)
-                .with_system(check_game_over.after(remove_piece))
-                .with_system(check_full_line.after(remove_piece)),
-        )
-        .add_system_set_to_stage(
-            CoreStage::Update,
-            SystemSet::on_update(GameState::GamePlaying)
-                .with_system(rotate_piece)
-                .with_system(auto_move_piece_down)
-                .with_system(auto_generate_new_piece)
-                .with_system(update_scoreboard)
-                .with_system(update_linesboard)
-                .with_system(pause_game)
-                .with_system(update_next_piece),
+        // TODO 无法改成PostUpdate
+        .add_systems(
+            (
+                rotate_piece,
+                auto_move_piece_down,
+                auto_generate_new_piece,
+                update_scoreboard,
+                update_linesboard,
+                pause_game,
+                update_next_piece,
+            )
+                .on_update(GameState::GamePlaying),
         )
         // Game Paused
-        .add_system_set(
-            SystemSet::on_enter(GameState::GamePaused).with_system(setup_game_paused_menu),
-        )
-        .add_system_set(SystemSet::on_update(GameState::GamePaused).with_system(click_button))
-        .add_system_set(
-            SystemSet::on_exit(GameState::GamePaused)
-                .with_system(despawn_screen::<OnGamePausedMenuScreen>),
+        .add_system_to_schedule(OnEnter(GameState::GamePaused), setup_game_paused_menu)
+        .add_system(click_button.on_update(GameState::GamePaused))
+        .add_system_to_schedule(
+            OnExit(GameState::GamePaused),
+            despawn_screen::<OnGamePausedMenuScreen>,
         )
         // Game Restarted
-        .add_system_set(
-            SystemSet::on_enter(GameState::GameRestarted)
-                .with_system(clear_board)
-                .with_system(clear_score)
-                .with_system(clear_lines),
+        .add_systems_to_schedule(
+            OnEnter(GameState::GameRestarted),
+            (clear_board, clear_score, clear_lines),
         )
-        .add_system_set(SystemSet::on_update(GameState::GameRestarted).with_system(play_game))
+        .add_system(play_game.on_update(GameState::GameRestarted))
         .run();
 }
 
@@ -106,5 +108,5 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn debug_state(state: Res<State<AppState>>) {
-    dbg!(state);
+    dbg!(&state.0);
 }

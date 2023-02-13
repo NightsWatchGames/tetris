@@ -3,9 +3,9 @@ use std::collections::HashSet;
 
 use bevy::prelude::*;
 
+use crate::common::*;
 use crate::piece::*;
 use crate::stats::*;
-use crate::common::*;
 
 // 正方形方块边长
 pub const BLOCK_LENGTH: f32 = 30.0;
@@ -177,12 +177,14 @@ pub fn check_full_line(
     lines.0 += full_lines.len() as u32;
     // 分数增加
     score.0 += match full_lines.len() {
-        0 => { 0 },
-        1 => { 100 },
-        2 => { 200 },
-        3 => { 400 },
-        4 => { 800 },
-        _ => { panic!("No matched score") },
+        0 => 0,
+        1 => 100,
+        2 => 200,
+        3 => 400,
+        4 => 800,
+        _ => {
+            panic!("No matched score")
+        }
     };
 
     // 消除行
@@ -210,12 +212,11 @@ pub fn check_full_line(
     }
 }
 
-
 // 检查是否游戏结束
 pub fn check_game_over(
-    mut app_state: ResMut<State<AppState>>,
-    mut game_state: ResMut<State<GameState>>,
-    query: Query<&Block, Without<Piece>>, 
+    mut app_state: ResMut<NextState<AppState>>,
+    mut game_state: ResMut<NextState<GameState>>,
+    query: Query<&Block, Without<Piece>>,
     mut game_over_events: EventWriter<GameOverEvent>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
@@ -230,8 +231,8 @@ pub fn check_game_over(
     if max_block_y >= 19 {
         audio.play(game_audios.gameover.clone());
         game_over_events.send(GameOverEvent::default());
-        app_state.set(AppState::GameOver).unwrap();
-        game_state.set(GameState::GameQuitted).unwrap();
+        app_state.set(AppState::GameOver);
+        game_state.set(GameState::GameQuitted);
     }
 }
 

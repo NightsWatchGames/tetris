@@ -9,7 +9,11 @@ rand = "0.8.0"
 lazy_static = "1.4.0"
 
 [dependencies.bevy]
-version = "0.9"
+# version = "0.9"
+# git = "https://github.com/bevyengine/bevy"
+# rev = "f7fbfaf9c72035e98c6b6cec0c7d26ff9f5b1c82"
+git = "https://github.com/lewiszlw/bevy"
+branch = "bump-async-channel"
 features = [
     "bmp",
     "wav"
