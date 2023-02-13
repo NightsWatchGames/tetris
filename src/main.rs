@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 // use bevy_inspector_egui::prelude::*;
 use board::*;
@@ -13,7 +15,6 @@ mod piece;
 mod stats;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
-const TIME_STEP: f32 = 1.0 / 10.0;
 
 // TODO 参考 https://github.com/dunnker/tetris-piston 优化代码
 fn main() {
@@ -22,6 +23,7 @@ fn main() {
         .insert_resource(Lines(0))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(NextPieceType(None))
+        .insert_resource(ManuallyMoveTimer(Timer::new(Duration::from_millis(100), TimerMode::Once)))
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
         .add_state::<GameState>()
@@ -62,9 +64,6 @@ fn main() {
             ),
         )
         // Game Playing
-        .add_system_to_schedule(CoreSchedule::FixedUpdate, manually_move_piece)
-        .insert_resource(FixedTime::new_from_secs(TIME_STEP))
-        // TODO 加了FixedTimestep后无法通过State控制
         .add_systems(
             (
                 remove_piece,
@@ -78,6 +77,7 @@ fn main() {
         .add_systems(
             (
                 rotate_piece,
+                manually_move_piece,
                 auto_move_piece_down,
                 auto_generate_new_piece,
                 update_scoreboard,

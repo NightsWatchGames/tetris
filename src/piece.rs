@@ -193,6 +193,10 @@ pub struct AutoMovePieceDownTimer(pub Timer);
 #[derive(Debug, Resource)]
 pub struct PieceQueue(pub VecDeque<PieceConfig>);
 
+// 控制手动移动频率
+#[derive(Debug, Resource)]
+pub struct ManuallyMoveTimer(pub Timer);
+
 pub fn setup_piece_queue(mut commands: Commands) {
     let mut piece_queue = PieceQueue(VecDeque::new());
     piece_queue.0.extend(random_7_pieces());
@@ -201,34 +205,41 @@ pub fn setup_piece_queue(mut commands: Commands) {
 
 // 手动移动四格骨牌
 pub fn manually_move_piece(
-    mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(Entity, &mut Block, &mut Transform, &Movable), With<Piece>>,
+    mut timer: ResMut<ManuallyMoveTimer>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
+    time: Res<Time>,
 ) {
-    if keyboard_input.pressed(KeyCode::Left) {
-        for (_, mut block, mut transform, movable) in &mut query {
-            if movable.can_left {
-                block.x -= 1;
-                transform.translation = block.translation();
-                audio.play(game_audios.drop.clone());
+    timer.0.tick(time.delta());
+    if timer.0.finished() {
+        if keyboard_input.pressed(KeyCode::Left) {
+            for (_, mut block, mut transform, movable) in &mut query {
+                if movable.can_left {
+                    block.x -= 1;
+                    transform.translation = block.translation();
+                    audio.play(game_audios.drop.clone());
+                    timer.0.reset();
+                }
             }
-        }
-    } else if keyboard_input.pressed(KeyCode::Right) {
-        for (_, mut block, mut transform, movable) in &mut query {
-            if movable.can_right {
-                block.x += 1;
-                transform.translation = block.translation();
-                audio.play(game_audios.drop.clone());
+        } else if keyboard_input.pressed(KeyCode::Right) {
+            for (_, mut block, mut transform, movable) in &mut query {
+                if movable.can_right {
+                    block.x += 1;
+                    transform.translation = block.translation();
+                    audio.play(game_audios.drop.clone());
+                    timer.0.reset();
+                }
             }
-        }
-    } else if keyboard_input.pressed(KeyCode::Down) {
-        for (entity, mut block, mut transform, movable) in &mut query {
-            if movable.can_down {
-                block.y -= 1;
-                transform.translation = block.translation();
-                audio.play(game_audios.drop.clone());
+        } else if keyboard_input.pressed(KeyCode::Down) {
+            for (entity, mut block, mut transform, movable) in &mut query {
+                if movable.can_down {
+                    block.y -= 1;
+                    transform.translation = block.translation();
+                    audio.play(game_audios.drop.clone());
+                    timer.0.reset();
+                }
             }
         }
     }
