@@ -23,7 +23,10 @@ fn main() {
         .insert_resource(Lines(0))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(NextPieceType(None))
-        .insert_resource(ManuallyMoveTimer(Timer::new(Duration::from_millis(100), TimerMode::Once)))
+        .insert_resource(ManuallyMoveTimer(Timer::new(
+            Duration::from_millis(100),
+            TimerMode::Once,
+        )))
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
         .add_state::<GameState>()
@@ -39,10 +42,10 @@ fn main() {
             OnEnter(AppState::MainMenu),
             (
                 setup_main_menu,
-                clear_board,
-                clear_score,
-                clear_lines,
-                clear_next_piece,
+                clear_game_board,
+                reset_score,
+                reset_lines,
+                clear_next_piece_board,
             ),
         )
         .add_system(click_button.on_update(AppState::MainMenu))
@@ -57,22 +60,23 @@ fn main() {
             OnExit(AppState::GameOver),
             (
                 despawn_screen::<OnGameOverMenuScreen>,
-                clear_board,
-                clear_score,
-                clear_lines,
-                clear_next_piece,
+                clear_game_board,
+                reset_score,
+                reset_lines,
+                clear_next_piece_board,
             ),
         )
         // Game Playing
         .add_systems(
             (
-                remove_piece,
+                remove_bottom_piece,
                 check_collision,
-                check_game_over.after(remove_piece),
-                check_full_line.after(remove_piece),
+                check_game_over.after(remove_bottom_piece),
+                check_full_line.after(remove_bottom_piece),
             )
                 .on_update(GameState::GamePlaying),
         )
+        // https://github.com/bevyengine/bevy/issues/7659 or https://github.com/bevyengine/bevy/issues/7632
         // TODO 无法改成PostUpdate
         .add_systems(
             (
@@ -83,7 +87,7 @@ fn main() {
                 update_scoreboard,
                 update_linesboard,
                 pause_game,
-                update_next_piece,
+                update_next_piece_board,
                 control_piece_visibility,
             )
                 .on_update(GameState::GamePlaying),
@@ -98,7 +102,7 @@ fn main() {
         // Game Restarted
         .add_systems_to_schedule(
             OnEnter(GameState::GameRestarted),
-            (clear_board, clear_score, clear_lines),
+            (clear_game_board, reset_score, reset_lines),
         )
         .add_system(play_game.on_update(GameState::GameRestarted))
         .run();
@@ -106,8 +110,4 @@ fn main() {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
-}
-
-fn debug_state(state: Res<State<AppState>>) {
-    dbg!(&state.0);
 }

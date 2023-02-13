@@ -135,7 +135,7 @@ pub fn setup_game_board(mut commands: Commands) {
 }
 
 // 当piece移到底部后，移除piece组件
-pub fn remove_piece(mut commands: Commands, mut query: Query<(Entity, &Movable), With<Piece>>) {
+pub fn remove_bottom_piece(mut commands: Commands, query: Query<(Entity, &Movable), With<Piece>>) {
     for (entity, movable) in &query {
         if !movable.can_down {
             commands.entity(entity).remove::<Piece>();
@@ -236,7 +236,7 @@ pub fn check_game_over(
     }
 }
 
-pub fn clear_board(mut commands: Commands, query: Query<Entity, With<Block>>) {
+pub fn clear_game_board(mut commands: Commands, query: Query<Entity, With<Block>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }

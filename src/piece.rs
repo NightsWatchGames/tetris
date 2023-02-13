@@ -941,25 +941,12 @@ pub fn auto_generate_new_piece(
     if query.is_empty() {
         let piece_config = piece_queue.0.pop_front().unwrap();
         // 生成新的四格骨牌
-        let new_sprite_bundle = |block: &Block, color: Color| SpriteBundle {
-            sprite: Sprite { color, ..default() },
-            transform: Transform {
-                scale: Vec3::new(
-                    BLOCK_STICKER_LENGTH,
-                    BLOCK_STICKER_LENGTH,
-                    BLOCK_STICKER_LENGTH,
-                ),
-                translation: block.translation(),
-                ..default()
-            },
-            visibility: Visibility::Hidden,
-            ..default()
-        };
         let color = piece_config.color;
         let block = piece_config.blocks.0.clone();
+        let visibility = Visibility::Hidden;
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block, color))
+            .insert(new_block_sprite(&block, color, visibility))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -973,7 +960,7 @@ pub fn auto_generate_new_piece(
         let block = piece_config.blocks.1.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block, color))
+            .insert(new_block_sprite(&block, color, visibility))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -987,7 +974,7 @@ pub fn auto_generate_new_piece(
         let block = piece_config.blocks.2.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block, color))
+            .insert(new_block_sprite(&block, color, visibility))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -1001,7 +988,7 @@ pub fn auto_generate_new_piece(
         let block = piece_config.blocks.3.clone();
         commands
             .spawn(piece_config.piece.clone())
-            .insert(new_sprite_bundle(&block, color))
+            .insert(new_block_sprite(&block, color, visibility))
             .insert(block)
             .insert(Movable {
                 can_down: true,
@@ -1060,4 +1047,21 @@ fn random_7_pieces() -> Vec<PieceConfig> {
     }
     // info!("random 7 pieces: {:?}", result);
     result
+}
+
+pub fn new_block_sprite(block: &Block, color: Color, visibility: Visibility) -> SpriteBundle {
+    SpriteBundle {
+        sprite: Sprite { color, ..default() },
+        transform: Transform {
+            scale: Vec3::new(
+                BLOCK_STICKER_LENGTH,
+                BLOCK_STICKER_LENGTH,
+                BLOCK_STICKER_LENGTH,
+            ),
+            translation: block.translation(),
+            ..default()
+        },
+        visibility,
+        ..default()
+    }
 }
