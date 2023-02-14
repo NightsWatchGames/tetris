@@ -170,7 +170,7 @@ pub struct Movable {
 }
 
 // 自动向下移动四格骨牌计时器
-#[derive(Component, Deref, DerefMut)]
+#[derive(Debug, Resource)]
 pub struct AutoMovePieceDownTimer(pub Timer);
 
 // 待生成的骨牌队列
@@ -187,73 +187,48 @@ pub fn setup_piece_queue(mut commands: Commands) {
     commands.insert_resource(piece_queue);
 }
 
-// 手动移动四格骨牌
-pub fn manually_move_piece(
+// 自动和手动移动四格骨牌
+pub fn move_piece(
+    mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(Entity, &mut Block, &mut Transform, &Movable), With<PieceType>>,
-    mut timer: ResMut<ManuallyMoveTimer>,
+    mut manually_move_timer: ResMut<ManuallyMoveTimer>,
+    mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
+    time: Res<Time>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
-    time: Res<Time>,
 ) {
-    timer.0.tick(time.delta());
-    if timer.0.finished() {
-        if keyboard_input.pressed(KeyCode::Left) {
-            for (_, mut block, mut transform, movable) in &mut query {
-                if movable.can_left {
-                    block.x -= 1;
-                    transform.translation = block.translation();
-                    audio.play(game_audios.drop.clone());
-                    timer.0.reset();
-                }
-            }
-        } else if keyboard_input.pressed(KeyCode::Right) {
-            for (_, mut block, mut transform, movable) in &mut query {
-                if movable.can_right {
-                    block.x += 1;
-                    transform.translation = block.translation();
-                    audio.play(game_audios.drop.clone());
-                    timer.0.reset();
-                }
-            }
-        } else if keyboard_input.pressed(KeyCode::Down) {
-            for (entity, mut block, mut transform, movable) in &mut query {
-                if movable.can_down {
-                    block.y -= 1;
-                    transform.translation = block.translation();
-                    audio.play(game_audios.drop.clone());
-                    timer.0.reset();
-                }
-            }
+    manually_move_timer.0.tick(time.delta());
+    auto_move_timer.0.tick(time.delta());
+    let mut reset_manually_move_timer = false;
+    for (mut block, mut transform, movable) in &mut query {
+        // 防止一帧中向下移动两行
+        let mut already_down = false;
+        // 自动下移
+        if auto_move_timer.0.just_finished() && movable.can_down {
+            block.y -= 1;
+            audio.play(game_audios.drop.clone());
+            already_down = true;
         }
-    }
-}
-
-// 自动向下移动四格骨牌
-pub fn auto_move_piece_down(
-    time: Res<Time>,
-    mut query: Query<
-        (
-            &mut AutoMovePieceDownTimer,
-            &mut Block,
-            &mut Transform,
-            &Movable,
-        ),
-        With<PieceType>,
-    >,
-    audio: Res<Audio>,
-    game_audios: Res<GameAudios>,
-) {
-    for (mut timer, mut block, mut transform, movable) in &mut query {
-        timer.tick(time.delta());
-
-        if timer.just_finished() {
-            if movable.can_down {
-                block.y -= 1;
-                transform.translation = block.translation();
+        // 手动移动
+        if manually_move_timer.0.finished() {
+            if keyboard_input.pressed(KeyCode::Left) && movable.can_left {
+                block.x -= 1;
                 audio.play(game_audios.drop.clone());
+                reset_manually_move_timer = true;
+            } else if keyboard_input.pressed(KeyCode::Right) && movable.can_right {
+                block.x += 1;
+                audio.play(game_audios.drop.clone());
+                reset_manually_move_timer = true;
+            } else if keyboard_input.pressed(KeyCode::Down) && movable.can_down && !already_down {
+                block.y -= 1;
+                audio.play(game_audios.drop.clone());
+                reset_manually_move_timer = true;
             }
         }
+        transform.translation = block.translation();
+    }
+    if reset_manually_move_timer {
+        manually_move_timer.0.reset();
     }
 }
 
@@ -382,11 +357,7 @@ pub fn auto_generate_new_piece(
                     can_down: true,
                     can_left: true,
                     can_right: true,
-                })
-                .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-                    1.0,
-                    TimerMode::Repeating,
-                )));
+                });
         }
     }
 }

@@ -136,7 +136,7 @@ pub fn setup_game_board(mut commands: Commands) {
 }
 
 // 当piece移到底部后，移除piece组件
-pub fn remove_bottom_piece(
+pub fn remove_piece_component(
     mut commands: Commands,
     query: Query<(Entity, &Movable), With<PieceType>>,
 ) {

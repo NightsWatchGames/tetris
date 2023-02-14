@@ -28,7 +28,7 @@ pub struct Linesboard;
 pub struct NextPieceType(pub Option<PieceType>);
 
 #[derive(Debug, Component)]
-pub struct NextPiece;
+pub struct NextPieceBoard;
 
 pub fn setup_stats_boards(
     mut commands: Commands,
@@ -132,7 +132,7 @@ pub fn update_next_piece_board(
     mut commands: Commands,
     piece_queue: Res<PieceQueue>,
     mut next_piece_type: ResMut<NextPieceType>,
-    query: Query<Entity, With<NextPiece>>,
+    query: Query<Entity, With<NextPieceBoard>>,
 ) {
     if next_piece_type.0.is_none()
         || piece_queue.0.front().unwrap().piece_type != next_piece_type.0.unwrap()
@@ -153,19 +153,19 @@ pub fn spawn_next_piece_board(commands: &mut Commands, blocks: [Block; 4], color
     let visibility = Visibility::Visible;
     commands
         .spawn(new_block_sprite(&blocks[0], color, visibility))
-        .insert(NextPiece);
+        .insert(NextPieceBoard);
     commands
         .spawn(new_block_sprite(&blocks[1], color, visibility))
-        .insert(NextPiece);
+        .insert(NextPieceBoard);
     commands
         .spawn(new_block_sprite(&blocks[2], color, visibility))
-        .insert(NextPiece);
+        .insert(NextPieceBoard);
     commands
         .spawn(new_block_sprite(&blocks[3], color, visibility))
-        .insert(NextPiece);
+        .insert(NextPieceBoard);
 }
 
-pub fn clear_next_piece_board(mut commands: Commands, query: Query<Entity, With<NextPiece>>) {
+pub fn clear_next_piece_board(mut commands: Commands, query: Query<Entity, With<NextPieceBoard>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }
