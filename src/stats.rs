@@ -4,7 +4,7 @@ use crate::{
     board::{Block, BLOCK_LENGTH, BLOCK_STICKER_LENGTH},
     new_block_sprite,
     piece::{PieceConfig, PieceQueue, PieceType},
-    piece_shape, shift_piece, RotationAngle,
+    piece_shape, shift_piece,
 };
 
 // 计分板长宽
