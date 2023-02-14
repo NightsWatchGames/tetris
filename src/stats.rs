@@ -4,6 +4,7 @@ use crate::{
     board::{Block, BLOCK_LENGTH, BLOCK_STICKER_LENGTH},
     new_block_sprite,
     piece::{PieceConfig, PieceQueue, PieceType},
+    piece_shape, shift_piece, RotationAngle,
 };
 
 // 计分板长宽
@@ -141,73 +142,10 @@ pub fn update_next_piece_board(
         for entity in &query {
             commands.entity(entity).despawn();
         }
-        let piece = piece_queue.0.front().unwrap().piece;
+        let piece_type = piece_queue.0.front().unwrap().piece;
         let color = piece_queue.0.front().unwrap().color;
-        match piece {
-            PieceType::I(_) => {
-                let blocks = [
-                    Block { x: 11, y: 18 },
-                    Block { x: 12, y: 18 },
-                    Block { x: 13, y: 18 },
-                    Block { x: 14, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::J(_) => {
-                let blocks = [
-                    Block { x: 11, y: 17 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 13, y: 17 },
-                    Block { x: 11, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::L(_) => {
-                let blocks = [
-                    Block { x: 11, y: 17 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 13, y: 17 },
-                    Block { x: 13, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::O(_) => {
-                let blocks = [
-                    Block { x: 11, y: 17 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 11, y: 18 },
-                    Block { x: 12, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::S(_) => {
-                let blocks = [
-                    Block { x: 11, y: 17 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 12, y: 18 },
-                    Block { x: 13, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::T(_) => {
-                let blocks = [
-                    Block { x: 11, y: 17 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 13, y: 17 },
-                    Block { x: 12, y: 18 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-            PieceType::Z(_) => {
-                let blocks = [
-                    Block { x: 11, y: 18 },
-                    Block { x: 12, y: 18 },
-                    Block { x: 12, y: 17 },
-                    Block { x: 13, y: 17 },
-                ];
-                spawn_next_piece_board(&mut commands, blocks, color);
-            }
-        }
+        let blocks = shift_piece(piece_shape(piece_type), Some(8), Some(17));
+        spawn_next_piece_board(&mut commands, blocks, color);
     }
 }
 

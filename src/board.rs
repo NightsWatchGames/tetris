@@ -23,8 +23,8 @@ pub const BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 // 方块
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Block {
-    pub x: u32,
-    pub y: u32,
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Default)]
@@ -41,9 +41,15 @@ impl Block {
             z: 0.0,
         }
     }
-    pub fn set(&mut self, x: u32, y: u32) {
+    pub fn set(&mut self, x: i32, y: i32) {
         self.x = x;
         self.y = y;
+    }
+}
+
+impl From<[i32; 2]> for Block {
+    fn from([x, y]: [i32; 2]) -> Self {
+        Block { x, y }
     }
 }
 
@@ -154,7 +160,7 @@ pub fn check_full_line(
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
 ) {
-    let mut y_to_x_set_map: HashMap<u32, HashSet<u32>> = HashMap::new();
+    let mut y_to_x_set_map: HashMap<i32, HashSet<i32>> = HashMap::new();
     for (_, block, _) in &query {
         if y_to_x_set_map.contains_key(&block.y) {
             let x_set = y_to_x_set_map.get_mut(&block.y).unwrap();

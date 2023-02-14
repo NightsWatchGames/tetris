@@ -4,41 +4,86 @@ use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
+pub const SHAPE_I: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [6, 0]];
+pub const SHAPE_J: [[i32; 2]; 4] = [[3, 1], [3, 0], [4, 0], [5, 0]];
+pub const SHAPE_L: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [5, 1]];
+pub const SHAPE_O: [[i32; 2]; 4] = [[4, 1], [4, 0], [5, 1], [5, 0]];
+pub const SHAPE_S: [[i32; 2]; 4] = [[3, 0], [4, 0], [4, 1], [5, 1]];
+pub const SHAPE_T: [[i32; 2]; 4] = [[3, 0], [4, 1], [4, 0], [5, 0]];
+pub const SHAPE_Z: [[i32; 2]; 4] = [[3, 1], [4, 1], [4, 0], [5, 0]];
+
+pub fn piece_shape(piece_type: PieceType) -> [Block; 4] {
+    match piece_type {
+        PieceType::I(_) => SHAPE_I.map(|pos| pos.into()),
+        PieceType::J(_) => SHAPE_J.map(|pos| pos.into()),
+        PieceType::L(_) => SHAPE_L.map(|pos| pos.into()),
+        PieceType::O(_) => SHAPE_O.map(|pos| pos.into()),
+        PieceType::S(_) => SHAPE_S.map(|pos| pos.into()),
+        PieceType::T(_) => SHAPE_T.map(|pos| pos.into()),
+        PieceType::Z(_) => SHAPE_Z.map(|pos| pos.into()),
+    }
+}
+
+pub fn shift_piece(
+    mut blocks: [Block; 4],
+    delta_x: Option<i32>,
+    delta_y: Option<i32>,
+) -> [Block; 4] {
+    match delta_x {
+        Some(delta) => {
+            blocks[0].x += delta;
+            blocks[1].x += delta;
+            blocks[2].x += delta;
+            blocks[3].x += delta;
+        }
+        None => {}
+    }
+    match delta_y {
+        Some(delta) => {
+            blocks[0].y += delta;
+            blocks[1].y += delta;
+            blocks[2].y += delta;
+            blocks[3].y += delta;
+        }
+        None => {}
+    }
+    blocks
+}
+
 lazy_static::lazy_static!(
     static ref ALL_PIECES: Vec<PieceConfig> = vec![
         PieceConfig::new(
             PieceType::I(RotationAngle::Angle0),
-            [Block {x: 3, y: 20}, Block {x: 4, y: 20}, Block {x: 5, y: 20}, Block {x: 6, y: 20}],
+            shift_piece(piece_shape(PieceType::I(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::J(RotationAngle::Angle0),
-            [Block {x: 4, y: 21}, Block {x: 4, y: 20}, Block {x: 5, y: 20}, Block {x: 6, y: 20}],
+            shift_piece(piece_shape(PieceType::J(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::L(RotationAngle::Angle0),
-            [Block {x: 3, y: 20}, Block {x: 4, y: 20}, Block {x: 5, y: 20}, Block {x: 5, y: 21}],
+            shift_piece(piece_shape(PieceType::L(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::O(RotationAngle::Angle0),
-            [Block {x: 4, y: 21}, Block {x: 4, y: 20}, Block {x: 5, y: 20}, Block {x: 5, y: 21}],
+            shift_piece(piece_shape(PieceType::O(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::S(RotationAngle::Angle0),
-            [Block {x: 3, y: 20}, Block {x: 4, y: 20}, Block {x: 4, y: 21}, Block {x: 5, y: 21}],
+            shift_piece(piece_shape(PieceType::S(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::T(RotationAngle::Angle0),
-            [Block {x: 3, y: 20}, Block {x: 4, y: 21}, Block {x: 4, y: 20}, Block {x: 5, y: 20}],
+            shift_piece(piece_shape(PieceType::T(RotationAngle::Angle0)), None, Some(20))
         ),
         PieceConfig::new(
             PieceType::Z(RotationAngle::Angle0),
-            [Block {x: 4, y: 21}, Block {x: 5, y: 21}, Block {x: 5, y: 20}, Block {x: 6, y: 20}],
+            shift_piece(piece_shape(PieceType::Z(RotationAngle::Angle0)), None, Some(20))
         ),
     ];
 );
 
 // 四格骨牌
-// TODO rename
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PieceType {
     // ####
@@ -109,28 +154,28 @@ impl PieceConfig {
     }
 }
 
-pub fn blocks_min_x(blocks: &[Block; 4]) -> u32 {
+pub fn blocks_min_x(blocks: &[Block; 4]) -> i32 {
     blocks[0]
         .x
         .min(blocks[1].x)
         .min(blocks[2].x)
         .min(blocks[3].x)
 }
-pub fn blocks_min_y(blocks: &[Block; 4]) -> u32 {
+pub fn blocks_min_y(blocks: &[Block; 4]) -> i32 {
     blocks[0]
         .y
         .min(blocks[1].y)
         .min(blocks[2].y)
         .min(blocks[3].y)
 }
-pub fn blocks_max_x(blocks: &[Block; 4]) -> u32 {
+pub fn blocks_max_x(blocks: &[Block; 4]) -> i32 {
     blocks[0]
         .x
         .max(blocks[1].x)
         .max(blocks[2].x)
         .max(blocks[3].x)
 }
-pub fn blocks_max_y(blocks: &[Block; 4]) -> u32 {
+pub fn blocks_max_y(blocks: &[Block; 4]) -> i32 {
     blocks[0]
         .y
         .max(blocks[1].y)
@@ -377,8 +422,8 @@ fn rotate_piece_i(piece_config: PieceConfig) -> PieceConfig {
     match piece_config.piece {
         PieceType::I(RotationAngle::Angle0) | PieceType::I(RotationAngle::Angle180) => {
             // 当前为水平方向
-            let new_x = max_x as u32 - 1;
-            let new_min_y = min_y as u32 - 1;
+            let new_x = max_x - 1;
+            let new_min_y = min_y - 1;
             return PieceConfig::new(
                 PieceType::I(RotationAngle::Angle90),
                 [
@@ -403,8 +448,8 @@ fn rotate_piece_i(piece_config: PieceConfig) -> PieceConfig {
         }
         PieceType::I(RotationAngle::Angle90) | PieceType::I(RotationAngle::Angle270) => {
             // 当前为垂直方向
-            let new_y = max_y as u32 - 1;
-            let new_min_x = min_x as u32 - 1;
+            let new_y = max_y - 1;
+            let new_min_x = min_x - 1;
             return PieceConfig::new(
                 PieceType::I(RotationAngle::Angle0),
                 [
