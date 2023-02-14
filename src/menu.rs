@@ -2,7 +2,6 @@ use bevy::app::AppExit;
 use bevy::prelude::*;
 
 use crate::{
-    board::*,
     common::{AppState, GameState},
 };
 

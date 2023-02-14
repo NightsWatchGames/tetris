@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy-inspector-egui = "0.14.0"
 rand = "0.8.0"
 lazy_static = "1.4.0"
 

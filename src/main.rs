@@ -16,7 +16,6 @@ mod stats;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
-// TODO 参考 https://github.com/dunnker/tetris-piston 优化代码
 fn main() {
     App::new()
         .insert_resource(Score(0))
@@ -34,7 +33,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
         .add_state::<GameState>()
-        // .add_plugin(WorldInspectorPlugin::new())
         .add_startup_system(setup_camera)
         .add_startup_system(setup_game_board)
         .add_startup_system(setup_stats_boards)
