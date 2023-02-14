@@ -135,14 +135,14 @@ pub fn update_next_piece_board(
     query: Query<Entity, With<NextPiece>>,
 ) {
     if next_piece_type.0.is_none()
-        || piece_queue.0.front().unwrap().piece != next_piece_type.0.unwrap()
+        || piece_queue.0.front().unwrap().piece_type != next_piece_type.0.unwrap()
     {
-        next_piece_type.0 = Some(piece_queue.0.front().unwrap().piece);
+        next_piece_type.0 = Some(piece_queue.0.front().unwrap().piece_type);
         // 销毁原board
         for entity in &query {
             commands.entity(entity).despawn();
         }
-        let piece_type = piece_queue.0.front().unwrap().piece;
+        let piece_type = piece_queue.0.front().unwrap().piece_type;
         let color = piece_queue.0.front().unwrap().color;
         let blocks = shift_piece(piece_shape(piece_type), Some(8), Some(17));
         spawn_next_piece_board(&mut commands, blocks, color);

@@ -384,7 +384,6 @@ pub fn click_button(
                     info!("Quit button clicked");
                     exit.send_default();
                 }
-                _ => {}
             },
             _ => {}
         }

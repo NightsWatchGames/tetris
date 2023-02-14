@@ -41,10 +41,6 @@ impl Block {
             z: 0.0,
         }
     }
-    pub fn set(&mut self, x: i32, y: i32) {
-        self.x = x;
-        self.y = y;
-    }
 }
 
 impl From<[i32; 2]> for Block {

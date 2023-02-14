@@ -24,6 +24,7 @@ pub fn piece_shape(piece_type: PieceType) -> [Block; 4] {
     }
 }
 
+// 平移骨牌
 pub fn shift_piece(
     mut blocks: [Block; 4],
     delta_x: Option<i32>,
@@ -67,7 +68,7 @@ pub fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>)
 }
 
 lazy_static::lazy_static!(
-    static ref ALL_PIECES: Vec<PieceConfig> = vec![
+    static ref GENERATED_PIECES: Vec<PieceConfig> = vec![
         PieceConfig::new(
             PieceType::I,
             shift_piece(piece_shape(PieceType::I), None, Some(20))
@@ -134,18 +135,16 @@ impl PieceType {
     pub const PIECE_AMOUNT: u32 = 7;
 }
 
-// TODO 参考 https://github.com/kunieone/tetris_rs 重构旋转部分
-
 #[derive(Debug, Clone)]
 pub struct PieceConfig {
-    pub piece: PieceType,
+    pub piece_type: PieceType,
     pub blocks: [Block; 4],
     pub color: Color,
 }
 
 impl PieceConfig {
-    pub fn new(piece: PieceType, blocks: [Block; 4]) -> Self {
-        let color = match piece {
+    pub fn new(piece_type: PieceType, blocks: [Block; 4]) -> Self {
+        let color = match piece_type {
             PieceType::I => Color::CYAN,
             PieceType::J => Color::BLUE,
             PieceType::L => Color::ORANGE,
@@ -155,7 +154,7 @@ impl PieceConfig {
             PieceType::Z => Color::RED,
         };
         PieceConfig {
-            piece,
+            piece_type,
             blocks,
             color,
         }
@@ -324,12 +323,21 @@ pub fn rotate_piece(
         };
         let sum_x = query.iter().map(|(_, block, _)| block.x).sum::<i32>();
         let sum_y = query.iter().map(|(_, block, _)| block.y).sum::<i32>();
+        // 通过矩阵变化实现旋转，可以理解为沿y=x对称后沿y=0对称，然后平移
         for (_, mut block, mut transform) in &mut query {
-            *block = shift_block(
-                [block.y, -block.x].into(),
-                Some(sum_x / 4 - sum_y / 4),
-                Some(sum_x / 4 + sum_y / 4),
-            );
+            *block = match piece_type {
+                // 微调平移量，使其更自然
+                PieceType::O | PieceType::L | PieceType::J => shift_block(
+                    [block.y, -block.x].into(),
+                    Some(sum_x / 4 - sum_y / 4),
+                    Some(sum_x / 4 + sum_y / 4 + 1),
+                ),
+                _ => shift_block(
+                    [block.y, -block.x].into(),
+                    Some(sum_x / 4 - sum_y / 4),
+                    Some(sum_x / 4 + sum_y / 4),
+                ),
+            };
             transform.translation = block.translation();
         }
     }
@@ -362,63 +370,24 @@ pub fn auto_generate_new_piece(
         let piece_config = piece_queue.0.pop_front().unwrap();
         // 生成新的四格骨牌
         let color = piece_config.color;
-        let block = piece_config.blocks[0].clone();
         let visibility = Visibility::Hidden;
-        commands
-            .spawn(piece_config.piece.clone())
-            .insert(new_block_sprite(&block, color, visibility))
-            .insert(block)
-            .insert(Movable {
-                can_down: true,
-                can_left: true,
-                can_right: true,
-            })
-            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-                1.0,
-                TimerMode::Repeating,
-            )));
-        let block = piece_config.blocks[1].clone();
-        commands
-            .spawn(piece_config.piece.clone())
-            .insert(new_block_sprite(&block, color, visibility))
-            .insert(block)
-            .insert(Movable {
-                can_down: true,
-                can_left: true,
-                can_right: true,
-            })
-            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-                1.0,
-                TimerMode::Repeating,
-            )));
-        let block = piece_config.blocks[2].clone();
-        commands
-            .spawn(piece_config.piece.clone())
-            .insert(new_block_sprite(&block, color, visibility))
-            .insert(block)
-            .insert(Movable {
-                can_down: true,
-                can_left: true,
-                can_right: true,
-            })
-            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-                1.0,
-                TimerMode::Repeating,
-            )));
-        let block = piece_config.blocks[3].clone();
-        commands
-            .spawn(piece_config.piece.clone())
-            .insert(new_block_sprite(&block, color, visibility))
-            .insert(block)
-            .insert(Movable {
-                can_down: true,
-                can_left: true,
-                can_right: true,
-            })
-            .insert(AutoMovePieceDownTimer(Timer::from_seconds(
-                1.0,
-                TimerMode::Repeating,
-            )));
+        let piece_type = piece_config.piece_type.clone();
+
+        for block in piece_config.blocks.iter() {
+            commands
+                .spawn(piece_type)
+                .insert(new_block_sprite(&block, color, visibility))
+                .insert(*block)
+                .insert(Movable {
+                    can_down: true,
+                    can_left: true,
+                    can_right: true,
+                })
+                .insert(AutoMovePieceDownTimer(Timer::from_seconds(
+                    1.0,
+                    TimerMode::Repeating,
+                )));
+        }
     }
 }
 
@@ -432,7 +401,7 @@ fn random_7_pieces() -> Vec<PieceConfig> {
         let mut select = |rand_int: u32| {
             if !rand_ints.contains(&rand_int) {
                 rand_ints.push(rand_int);
-                result.push(ALL_PIECES.get(rand_int as usize).unwrap().clone());
+                result.push(GENERATED_PIECES.get(rand_int as usize).unwrap().clone());
             }
         };
         match rng.gen_range(0..PieceType::PIECE_AMOUNT) {
