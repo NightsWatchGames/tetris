@@ -14,7 +14,7 @@ pub enum GameState {
     GamePaused,
     GameRestarted,
     #[default]
-    GameQuitted,
+    GameQuited,
 }
 
 #[derive(Debug, Resource)]

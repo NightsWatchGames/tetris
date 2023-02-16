@@ -27,9 +27,6 @@ pub struct Block {
     pub y: i32,
 }
 
-#[derive(Default)]
-pub struct GameOverEvent;
-
 impl Block {
     pub fn translation(&self) -> Vec3 {
         // 方块xy原点为左下角
@@ -221,7 +218,6 @@ pub fn check_game_over(
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
-    mut game_over_events: EventWriter<GameOverEvent>,
     audio: Res<Audio>,
     game_audios: Res<GameAudios>,
 ) {
@@ -234,9 +230,8 @@ pub fn check_game_over(
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
         audio.play(game_audios.gameover.clone());
-        game_over_events.send(GameOverEvent::default());
         app_state.set(AppState::GameOver);
-        game_state.set(GameState::GameQuitted);
+        game_state.set(GameState::GameQuited);
     }
 }
 

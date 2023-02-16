@@ -38,7 +38,6 @@ fn main() {
         .add_startup_system(setup_stats_boards)
         .add_startup_system(setup_game_audios)
         .add_startup_system(setup_piece_queue)
-        .add_event::<GameOverEvent>()
         // Main Menu
         .add_systems_to_schedule(
             OnEnter(AppState::MainMenu),

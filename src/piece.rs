@@ -332,12 +332,8 @@ pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), Wi
 pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&PieceType>,
-    game_over_events: EventReader<GameOverEvent>,
     mut piece_queue: ResMut<PieceQueue>,
 ) {
-    if !game_over_events.is_empty() {
-        return;
-    }
     if piece_queue.0.len() < PieceType::PIECE_AMOUNT as usize {
         piece_queue.0.extend(random_7_pieces());
     }

@@ -373,7 +373,7 @@ pub fn click_button(
                     info!("BackToMainMenu button clicked");
                     println!("{:?}", app_state.0);
                     app_state.set(AppState::MainMenu);
-                    game_state.set(GameState::GameQuitted);
+                    game_state.set(GameState::GameQuited);
                 }
                 MenuButtonAction::ResumeGame => {
                     info!("ResumeGame button clicked");
