@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 
 use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
@@ -67,41 +67,8 @@ pub fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>)
     block
 }
 
-lazy_static::lazy_static!(
-    static ref GENERATED_PIECES: Vec<PieceConfig> = vec![
-        PieceConfig::new(
-            PieceType::I,
-            shift_piece(piece_shape(PieceType::I), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::J,
-            shift_piece(piece_shape(PieceType::J), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::L,
-            shift_piece(piece_shape(PieceType::L), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::O,
-            shift_piece(piece_shape(PieceType::O), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::S,
-            shift_piece(piece_shape(PieceType::S), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::T,
-            shift_piece(piece_shape(PieceType::T), None, Some(20))
-        ),
-        PieceConfig::new(
-            PieceType::Z,
-            shift_piece(piece_shape(PieceType::Z), None, Some(20))
-        ),
-    ];
-);
-
 // 四格骨牌
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub enum PieceType {
     // ####
     I,
@@ -360,49 +327,50 @@ pub fn auto_generate_new_piece(
 
 // bag7算法实现随机：每次填充7个随机排序的骨牌
 fn random_7_pieces() -> Vec<PieceConfig> {
-    let mut result: Vec<PieceConfig> = Vec::new();
     let mut rng = rand::thread_rng();
-    let mut rand_ints: Vec<u32> = Vec::new();
+    let mut piece_type_set = BTreeSet::new();
 
     loop {
-        let mut select = |rand_int: u32| {
-            if !rand_ints.contains(&rand_int) {
-                rand_ints.push(rand_int);
-                result.push(GENERATED_PIECES.get(rand_int as usize).unwrap().clone());
-            }
-        };
         match rng.gen_range(0..PieceType::PIECE_AMOUNT) {
             0 => {
-                select(0);
+                piece_type_set.insert(PieceType::I);
             }
             1 => {
-                select(1);
+                piece_type_set.insert(PieceType::J);
             }
             2 => {
-                select(2);
+                piece_type_set.insert(PieceType::L);
             }
             3 => {
-                select(3);
+                piece_type_set.insert(PieceType::O);
             }
             4 => {
-                select(4);
+                piece_type_set.insert(PieceType::S);
             }
             5 => {
-                select(5);
+                piece_type_set.insert(PieceType::T);
             }
             6 => {
-                select(6);
+                piece_type_set.insert(PieceType::Z);
             }
             _ => {
                 panic!("Random value is unexpected");
             }
         }
-        if result.len() == PieceType::PIECE_AMOUNT as usize {
+        if piece_type_set.len() == PieceType::PIECE_AMOUNT as usize {
             break;
         }
     }
     // info!("random 7 pieces: {:?}", result);
-    result
+    piece_type_set
+        .iter()
+        .map(|piece_type| {
+            PieceConfig::new(
+                *piece_type,
+                shift_piece(piece_shape(*piece_type), None, Some(20)),
+            )
+        })
+        .collect()
 }
 
 pub fn new_block_sprite(block: &Block, color: Color, visibility: Visibility) -> SpriteBundle {

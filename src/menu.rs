@@ -1,9 +1,7 @@
 use bevy::app::AppExit;
 use bevy::prelude::*;
 
-use crate::{
-    common::{AppState, GameState},
-};
+use crate::common::{AppState, GameState};
 
 #[derive(Component)]
 pub struct OnMainMenuScreen;
