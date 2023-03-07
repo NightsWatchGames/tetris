@@ -251,22 +251,27 @@ pub fn check_collision(
     }
 }
 
-// TODO 旋转不能产生碰撞（进入物体）
 pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut PieceType, &mut Block, &mut Transform)>,
+    mut q_piece: Query<(&mut PieceType, &mut Block, &mut Transform)>,
+    q_board: Query<&Block, Without<PieceType>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Up) {
-        let piece_type = match query.iter().next() {
+        let piece_type = match q_piece.iter().next() {
             Some((piece_type, _, _)) => piece_type.clone(),
             None => {
                 return;
             }
         };
-        let sum_x = query.iter().map(|(_, block, _)| block.x).sum::<i32>();
-        let sum_y = query.iter().map(|(_, block, _)| block.y).sum::<i32>();
+        let sum_x = q_piece.iter().map(|(_, block, _)| block.x).sum::<i32>();
+        let sum_y = q_piece.iter().map(|(_, block, _)| block.y).sum::<i32>();
+
+        let original_blocks: Vec<Block> = q_piece
+            .iter()
+            .map(|(_, block, _)| block.clone())
+            .collect();
         // 通过矩阵变化实现旋转，可以理解为沿y=x对称后沿y=0对称，然后平移
-        for (_, mut block, mut transform) in &mut query {
+        for (_, mut block, mut transform) in &mut q_piece {
             *block = match piece_type {
                 // 微调平移量，使其更自然
                 PieceType::O | PieceType::L | PieceType::J => shift_block(
@@ -282,7 +287,84 @@ pub fn rotate_piece(
             };
             transform.translation = block.translation();
         }
+
+        // 当出现碰撞时，尝试左右平移最多2格（也可采取旋转后一旦出现碰撞则恢复原样）
+        if whether_colliding(&q_piece, &q_board) {
+            for (_, mut block, mut transform) in &mut q_piece {
+                *block = shift_block(block.clone(), Some(-1), None);
+                transform.translation = block.translation();
+            }
+        }
+        if whether_colliding(&q_piece, &q_board) {
+            for (_, mut block, mut transform) in &mut q_piece {
+                *block = shift_block(block.clone(), Some(-1), None);
+                transform.translation = block.translation();
+            }
+        }
+        if whether_colliding(&q_piece, &q_board) {
+            for (_, mut block, mut transform) in &mut q_piece {
+                *block = shift_block(block.clone(), Some(3), None);
+                transform.translation = block.translation();
+            }
+        }
+        if whether_colliding(&q_piece, &q_board) {
+            for (_, mut block, mut transform) in &mut q_piece {
+                *block = shift_block(block.clone(), Some(3), None);
+                transform.translation = block.translation();
+            }
+        }
+        // 恢复旋转前样子
+        if whether_colliding(&q_piece, &q_board) {
+            let mut index = 0;
+            for (_, mut block, mut transform) in &mut q_piece {
+                *block = original_blocks[index];
+                transform.translation = block.translation();
+                index += 1;
+            }
+        }
     }
+}
+
+// 检测旋转过程中是否发送碰撞
+pub fn whether_colliding(
+    piece_query: &Query<(&mut PieceType, &mut Block, &mut Transform)>,
+    board_query: &Query<&Block, Without<PieceType>>,
+) -> bool {
+    // 检查是否碰撞边界
+    for (_, block, _) in piece_query {
+        if block.x < 0 {
+            // 碰撞左边界
+            return true;
+        }
+        if block.x > 9 {
+            // 碰撞右边界
+            return true;
+        }
+        if block.y < 0 {
+            // 碰撞下边界
+            return true;
+        }
+    }
+
+    // 检查是否碰撞面板方块
+    for (_, block, _) in piece_query {
+        for board_block in board_query {
+            if board_block.y == block.y && block.x > 0 && board_block.x == block.x - 1 {
+                // 防止0-1溢出
+                // 左侧碰撞
+                return true;
+            }
+            if board_block.y == block.y && board_block.x == block.x + 1 {
+                // 右侧碰撞
+                return true;
+            }
+            if board_block.x == block.x && block.y > 0 && board_block.y == block.y - 1 {
+                // 下侧碰撞
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<PieceType>>) {
