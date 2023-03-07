@@ -155,6 +155,7 @@ pub fn setup_piece_queue(mut commands: Commands) {
 }
 
 // 自动和手动移动四格骨牌
+// TODO 达到底部短时间内可以左右移动
 pub fn move_piece(
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
     keyboard_input: Res<Input<KeyCode>>,

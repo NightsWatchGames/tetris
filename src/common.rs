@@ -8,7 +8,7 @@ pub enum AppState {
     GameOver,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, States, Default)]
 pub enum GameState {
     GamePlaying,
     GamePaused,

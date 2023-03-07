@@ -39,57 +39,54 @@ fn main() {
         .add_startup_system(setup_game_audios)
         .add_startup_system(setup_piece_queue)
         // Main Menu
-        .add_systems_to_schedule(
-            OnEnter(AppState::MainMenu),
+        .add_systems(
             (
                 setup_main_menu,
                 clear_game_board,
                 reset_score,
                 reset_lines,
                 clear_next_piece_board,
-            ),
+            )
+                .in_schedule(OnEnter(AppState::MainMenu)),
         )
         .add_system(click_button.in_set(OnUpdate(AppState::MainMenu)))
-        .add_system_to_schedule(
-            OnExit(AppState::MainMenu),
-            despawn_screen::<OnMainMenuScreen>,
-        )
+        .add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)))
         // Game Over Menu
-        .add_system_to_schedule(OnEnter(AppState::GameOver), setup_game_over_menu)
+        .add_system(setup_game_over_menu.in_schedule(OnEnter(AppState::GameOver)))
         .add_system(click_button.in_set(OnUpdate(AppState::GameOver)))
-        .add_systems_to_schedule(
-            OnExit(AppState::GameOver),
+        .add_systems(
             (
                 despawn_screen::<OnGameOverMenuScreen>,
                 clear_game_board,
                 reset_score,
                 reset_lines,
                 clear_next_piece_board,
-            ),
+            )
+                .in_schedule(OnExit(AppState::GameOver)),
         )
         // Game Playing
         // TODO 待 https://github.com/bevyengine/bevy/issues/7659 支持后可以简化代码
         .add_system(
             check_collision
                 .in_base_set(CoreSet::PostUpdate)
-                .run_if(state_equals(GameState::GamePlaying)),
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
         )
         .add_system(
             remove_piece_component
                 .in_base_set(CoreSet::PostUpdate)
-                .run_if(state_equals(GameState::GamePlaying)),
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
         )
         .add_system(
             check_game_over
                 .after(remove_piece_component)
                 .in_base_set(CoreSet::PostUpdate)
-                .run_if(state_equals(GameState::GamePlaying)),
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
         )
         .add_system(
             check_full_line
                 .after(remove_piece_component)
                 .in_base_set(CoreSet::PostUpdate)
-                .run_if(state_equals(GameState::GamePlaying)),
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
         )
         .add_systems(
             (
@@ -105,16 +102,15 @@ fn main() {
                 .in_set(OnUpdate(GameState::GamePlaying)),
         )
         // Game Paused
-        .add_system_to_schedule(OnEnter(GameState::GamePaused), setup_game_paused_menu)
+        .add_system(setup_game_paused_menu.in_schedule(OnEnter(GameState::GamePaused)))
         .add_system(click_button.in_set(OnUpdate(GameState::GamePaused)))
-        .add_system_to_schedule(
-            OnExit(GameState::GamePaused),
-            despawn_screen::<OnGamePausedMenuScreen>,
+        .add_system(
+            despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
         )
         // Game Restarted
-        .add_systems_to_schedule(
-            OnEnter(GameState::GameRestarted),
-            (clear_game_board, reset_score, reset_lines),
+        .add_systems(
+            (clear_game_board, reset_score, reset_lines)
+                .in_schedule(OnEnter(GameState::GameRestarted)),
         )
         .add_system(play_game.in_set(OnUpdate(GameState::GameRestarted)))
         .run();
