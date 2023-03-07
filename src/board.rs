@@ -46,6 +46,9 @@ impl From<[i32; 2]> for Block {
     }
 }
 
+#[derive(Debug, Resource)]
+pub struct RemovePieceComponentTimer(pub Timer);
+
 pub fn setup_game_board(mut commands: Commands) {
     // 三维坐标原点在board中央
     // 左侧边界
@@ -135,12 +138,32 @@ pub fn setup_game_board(mut commands: Commands) {
 // 当piece移到底部后，移除piece组件
 pub fn remove_piece_component(
     mut commands: Commands,
-    query: Query<(Entity, &Movable), With<PieceType>>,
+    q_piece_blocks: Query<(Entity, &Movable), With<PieceType>>,
+    mut timer: ResMut<RemovePieceComponentTimer>,
+    keyboard_input: Res<Input<KeyCode>>,
+    time: Res<Time>,
 ) {
-    for (entity, movable) in &query {
-        if !movable.can_down {
-            commands.entity(entity).remove::<PieceType>();
+    if !q_piece_blocks.is_empty() && !q_piece_blocks.iter().last().unwrap().1.can_down {
+        if !q_piece_blocks.iter().last().unwrap().1.can_down {
+            timer.0.tick(time.delta());
+        } else {
+            // 无法下移时，通过左右移动获得重新下移能力
+            timer.0.reset();
         }
+    }
+    let mut reset_timer = false;
+    for (entity, movable) in &q_piece_blocks {
+        // 到达底部后，仍可短时间内左右移动
+        if !movable.can_down {
+            // 当到达底部后，按向下键时，跳过timer直接开始新一个piece
+            if timer.0.just_finished() || keyboard_input.pressed(KeyCode::Down) {
+                commands.entity(entity).remove::<PieceType>();
+                reset_timer = true;
+            }
+        }
+    }
+    if reset_timer {
+        timer.0.reset();
     }
 }
 

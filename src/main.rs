@@ -30,6 +30,10 @@ fn main() {
             Duration::from_millis(100),
             TimerMode::Once,
         )))
+        .insert_resource(RemovePieceComponentTimer(Timer::new(
+            Duration::from_millis(300),
+            TimerMode::Once,
+        )))
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
         .add_state::<GameState>()
