@@ -21,7 +21,47 @@ pub enum MenuButtonAction {
     Quit,
 }
 
-pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+// 拆封为插件，分离代码
+pub struct MenuPlugin;
+
+impl Plugin for MenuPlugin {
+    fn build(&self, app: &mut App) {
+        // 监控状态创建界面
+        app.add_system(setup_main_menu.in_schedule(OnEnter(AppState::MainMenu)))
+            .add_system(setup_game_over_menu.in_schedule(OnEnter(AppState::GameOver)))
+            .add_system(setup_game_paused_menu.in_schedule(OnEnter(GameState::GamePaused)));
+
+        // TODO 检查菜单按钮系统 这俩也可以用run_if 一个方法来判断是否运行
+        app.add_system(
+            click_button.run_if(
+                state_exists_and_equals(AppState::MainMenu)
+                    .or_else(state_exists_and_equals(AppState::GameOver))
+                    .or_else(state_exists_and_equals(GameState::GamePaused)),
+            ),
+        );
+        // 按下ESC暂停 再次按下恢复
+        app.add_system(
+            pause_game.run_if(
+                state_exists_and_equals(GameState::GamePlaying)
+                    .or_else(state_exists_and_equals(GameState::GamePaused)),
+            ),
+        );
+
+        // 重新开始游戏
+        app.add_system(play_game.in_set(OnUpdate(GameState::GameRestarted)));
+
+        // 销毁界面
+        app.add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)));
+        app.add_system(
+            despawn_screen::<OnGameOverMenuScreen>.in_schedule(OnExit(AppState::GameOver)),
+        );
+        app.add_system(
+            despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
+        );
+    }
+}
+
+fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             NodeBundle {
@@ -120,7 +160,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             NodeBundle {
@@ -219,7 +259,7 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
         });
 }
 
-pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             NodeBundle {
@@ -345,7 +385,7 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
         });
 }
 
-pub fn click_button(
+fn click_button(
     mut interaction_query: Query<
         (&Interaction, &MenuButtonAction),
         (Changed<Interaction>, With<Button>),
@@ -387,20 +427,26 @@ pub fn click_button(
     }
 }
 
-pub fn pause_game(
-    mut game_state: ResMut<NextState<GameState>>,
+fn pause_game(
+    game_state: Res<State<GameState>>,
+    mut change_game_state: ResMut<NextState<GameState>>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if keyboard_input.pressed(KeyCode::Escape) {
-        game_state.set(GameState::GamePaused);
+    // 修改为可以再次按下ESC恢复游戏，使用just_pressed防止循环触发
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        if let GameState::GamePlaying = game_state.0 {
+            change_game_state.set(GameState::GamePaused);
+        } else {
+            change_game_state.set(GameState::GamePlaying);
+        }
     }
 }
 
-pub fn play_game(mut game_state: ResMut<NextState<GameState>>) {
+fn play_game(mut game_state: ResMut<NextState<GameState>>) {
     game_state.set(GameState::GamePlaying);
 }
 
-pub fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }

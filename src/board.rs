@@ -49,7 +49,48 @@ impl From<[i32; 2]> for Block {
 #[derive(Debug, Resource)]
 pub struct RemovePieceComponentTimer(pub Timer);
 
-pub fn setup_game_board(mut commands: Commands) {
+pub struct BoardPlugin;
+
+impl Plugin for BoardPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(setup_game_board);
+
+        app.add_systems(
+            (remove_piece_component, check_full_line, check_game_over)
+                .chain()
+                .in_base_set(CoreSet::PostUpdate)
+                .distributive_run_if(is_run),
+        );
+
+        // TODO 待 https://github.com/bevyengine/bevy/issues/7659 支持后可以简化代码
+        /*
+        app.add_system(
+            remove_piece_component
+                .in_base_set(CoreSet::PostUpdate)
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
+        );
+        app.add_system(
+            check_full_line
+                .after(remove_piece_component)
+                .in_base_set(CoreSet::PostUpdate)
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
+        );
+
+        app.add_system(
+            check_game_over
+                .after(remove_piece_component)
+                .in_base_set(CoreSet::PostUpdate)
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
+        );
+         */
+
+        app.add_systems((clear_game_board,).in_schedule(OnEnter(AppState::MainMenu)))
+            .add_systems((clear_game_board,).in_schedule(OnExit(AppState::GameOver)))
+            .add_systems((clear_game_board,).in_schedule(OnEnter(GameState::GameRestarted)));
+    }
+}
+
+fn setup_game_board(mut commands: Commands) {
     // 三维坐标原点在board中央
     // 左侧边界
     let half_col_count = COL_COUNT as f32 / 2.0;
@@ -135,8 +176,15 @@ pub fn setup_game_board(mut commands: Commands) {
     });
 }
 
+fn is_run(game_state: Res<State<GameState>>) -> bool {
+    if let GameState::GamePlaying = game_state.0 {
+        return true;
+    }
+    false
+}
+
 // 当piece移到底部后，移除piece组件
-pub fn remove_piece_component(
+fn remove_piece_component(
     mut commands: Commands,
     q_piece_blocks: Query<(Entity, &Movable), With<PieceType>>,
     mut timer: ResMut<RemovePieceComponentTimer>,
@@ -168,7 +216,7 @@ pub fn remove_piece_component(
 }
 
 // 检查是否有成功的行
-pub fn check_full_line(
+fn check_full_line(
     mut commands: Commands,
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
@@ -237,7 +285,7 @@ pub fn check_full_line(
 }
 
 // 检查是否游戏结束
-pub fn check_game_over(
+fn check_game_over(
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
@@ -258,7 +306,7 @@ pub fn check_game_over(
     }
 }
 
-pub fn clear_game_board(mut commands: Commands, query: Query<Entity, With<Block>>) {
+fn clear_game_board(mut commands: Commands, query: Query<Entity, With<Block>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }

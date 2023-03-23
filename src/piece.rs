@@ -1,16 +1,19 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::{board::*, common::GameAudios};
+use crate::{
+    board::*,
+    common::{GameAudios, GameState},
+};
 use bevy::prelude::*;
 use rand::Rng;
 
-pub const SHAPE_I: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [6, 0]];
-pub const SHAPE_J: [[i32; 2]; 4] = [[3, 1], [3, 0], [4, 0], [5, 0]];
-pub const SHAPE_L: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [5, 1]];
-pub const SHAPE_O: [[i32; 2]; 4] = [[4, 1], [4, 0], [5, 1], [5, 0]];
-pub const SHAPE_S: [[i32; 2]; 4] = [[3, 0], [4, 0], [4, 1], [5, 1]];
-pub const SHAPE_T: [[i32; 2]; 4] = [[3, 0], [4, 1], [4, 0], [5, 0]];
-pub const SHAPE_Z: [[i32; 2]; 4] = [[3, 1], [4, 1], [4, 0], [5, 0]];
+const SHAPE_I: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [6, 0]];
+const SHAPE_J: [[i32; 2]; 4] = [[3, 1], [3, 0], [4, 0], [5, 0]];
+const SHAPE_L: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [5, 1]];
+const SHAPE_O: [[i32; 2]; 4] = [[4, 1], [4, 0], [5, 1], [5, 0]];
+const SHAPE_S: [[i32; 2]; 4] = [[3, 0], [4, 0], [4, 1], [5, 1]];
+const SHAPE_T: [[i32; 2]; 4] = [[3, 0], [4, 1], [4, 0], [5, 0]];
+const SHAPE_Z: [[i32; 2]; 4] = [[3, 1], [4, 1], [4, 0], [5, 0]];
 
 pub fn piece_shape(piece_type: PieceType) -> [Block; 4] {
     match piece_type {
@@ -51,7 +54,7 @@ pub fn shift_piece(
     blocks
 }
 
-pub fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>) -> Block {
+fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>) -> Block {
     match delta_x {
         Some(delta) => {
             block.x += delta;
@@ -148,14 +151,38 @@ pub struct PieceQueue(pub VecDeque<PieceConfig>);
 #[derive(Debug, Resource)]
 pub struct ManuallyMoveTimer(pub Timer);
 
-pub fn setup_piece_queue(mut commands: Commands) {
+pub struct PiecePlugin;
+
+impl Plugin for PiecePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(setup_piece_queue);
+
+        app.add_system(
+            check_collision
+                .in_base_set(CoreSet::PostUpdate)
+                .run_if(state_exists_and_equals(GameState::GamePlaying)),
+        );
+
+        app.add_systems(
+            (
+                rotate_piece,
+                move_piece,
+                auto_generate_new_piece,
+                control_piece_visibility,
+            )
+                .in_set(OnUpdate(GameState::GamePlaying)),
+        );
+    }
+}
+
+fn setup_piece_queue(mut commands: Commands) {
     let mut piece_queue = PieceQueue(VecDeque::new());
     piece_queue.0.extend(random_7_pieces());
     commands.insert_resource(piece_queue);
 }
 
 // 自动和手动移动四格骨牌
-pub fn move_piece(
+fn move_piece(
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
@@ -200,7 +227,7 @@ pub fn move_piece(
 }
 
 // 检查碰撞
-pub fn check_collision(
+fn check_collision(
     mut piece_query: Query<(&mut Block, &mut Movable), With<PieceType>>,
     board_query: Query<&Block, Without<PieceType>>,
 ) {
@@ -251,7 +278,7 @@ pub fn check_collision(
     }
 }
 
-pub fn rotate_piece(
+fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
     mut q_piece: Query<(&mut PieceType, &mut Block, &mut Transform)>,
     q_board: Query<&Block, Without<PieceType>>,
@@ -266,10 +293,8 @@ pub fn rotate_piece(
         let sum_x = q_piece.iter().map(|(_, block, _)| block.x).sum::<i32>();
         let sum_y = q_piece.iter().map(|(_, block, _)| block.y).sum::<i32>();
 
-        let original_blocks: Vec<Block> = q_piece
-            .iter()
-            .map(|(_, block, _)| block.clone())
-            .collect();
+        let original_blocks: Vec<Block> =
+            q_piece.iter().map(|(_, block, _)| block.clone()).collect();
         // 通过矩阵变化实现旋转，可以理解为沿y=x对称后沿y=0对称，然后平移
         for (_, mut block, mut transform) in &mut q_piece {
             *block = match piece_type {
@@ -326,7 +351,7 @@ pub fn rotate_piece(
 }
 
 // 检测旋转过程中是否发送碰撞
-pub fn whether_colliding(
+fn whether_colliding(
     piece_query: &Query<(&mut PieceType, &mut Block, &mut Transform)>,
     board_query: &Query<&Block, Without<PieceType>>,
 ) -> bool {
@@ -367,7 +392,7 @@ pub fn whether_colliding(
     return false;
 }
 
-pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<PieceType>>) {
+fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<PieceType>>) {
     for (mut visibility, block) in &mut q_piece {
         if block.y > 19 {
             *visibility = Visibility::Hidden;
@@ -378,7 +403,7 @@ pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), Wi
 }
 
 // 自动生成新的四格骨牌
-pub fn auto_generate_new_piece(
+fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&PieceType>,
     mut piece_queue: ResMut<PieceQueue>,

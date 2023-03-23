@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     board::{Block, BLOCK_LENGTH},
+    common::{AppState, GameState},
     new_block_sprite,
     piece::{PieceQueue, PieceType},
     piece_shape, shift_piece,
@@ -30,7 +31,38 @@ pub struct NextPieceType(pub Option<PieceType>);
 #[derive(Debug, Component)]
 pub struct NextPieceBoard;
 
-pub fn setup_stats_boards(
+pub struct StatsPlugin;
+
+impl Plugin for StatsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(setup_stats_boards);
+        // 更新分数、更新行数、更新下一块砖
+        app.add_systems(
+            (
+                update_scoreboard,
+                update_linesboard,
+                update_next_piece_board,
+            )
+                .in_set(OnUpdate(GameState::GamePlaying)),
+        );
+
+        // 重置分数、重置行数、清理下一块砖 （不能同时添加在多个schedule里）
+        app.add_systems(
+            (reset_score, reset_lines, clear_next_piece_board)
+                .in_schedule(OnEnter(AppState::MainMenu)),
+        )
+        .add_systems(
+            (reset_score, reset_lines, clear_next_piece_board)
+                .in_schedule(OnExit(AppState::GameOver)),
+        )
+        .add_systems(
+            (reset_score, reset_lines, clear_next_piece_board)
+                .in_schedule(OnEnter(GameState::GameRestarted)),
+        );
+    }
+}
+
+fn setup_stats_boards(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     windows: Query<&Window>,
@@ -110,25 +142,25 @@ pub fn setup_stats_boards(
         .insert(Linesboard);
 }
 
-pub fn update_scoreboard(score: Res<Score>, mut query: Query<&mut Text, With<Scoreboard>>) {
+fn update_scoreboard(score: Res<Score>, mut query: Query<&mut Text, With<Scoreboard>>) {
     let mut text = query.single_mut();
     text.sections[1].value = score.0.to_string();
 }
 
-pub fn update_linesboard(lines: Res<Lines>, mut query: Query<&mut Text, With<Linesboard>>) {
+fn update_linesboard(lines: Res<Lines>, mut query: Query<&mut Text, With<Linesboard>>) {
     let mut text = query.single_mut();
     text.sections[1].value = lines.0.to_string();
 }
 
-pub fn reset_score(mut score: ResMut<Score>) {
+fn reset_score(mut score: ResMut<Score>) {
     score.0 = 0;
 }
 
-pub fn reset_lines(mut lines: ResMut<Lines>) {
+fn reset_lines(mut lines: ResMut<Lines>) {
     lines.0 = 0;
 }
 
-pub fn update_next_piece_board(
+fn update_next_piece_board(
     mut commands: Commands,
     piece_queue: Res<PieceQueue>,
     mut next_piece_type: ResMut<NextPieceType>,
@@ -149,7 +181,7 @@ pub fn update_next_piece_board(
     }
 }
 
-pub fn spawn_next_piece_board(commands: &mut Commands, blocks: [Block; 4], color: Color) {
+fn spawn_next_piece_board(commands: &mut Commands, blocks: [Block; 4], color: Color) {
     let visibility = Visibility::Visible;
     commands
         .spawn(new_block_sprite(&blocks[0], color, visibility))
@@ -165,7 +197,7 @@ pub fn spawn_next_piece_board(commands: &mut Commands, blocks: [Block; 4], color
         .insert(NextPieceBoard);
 }
 
-pub fn clear_next_piece_board(mut commands: Commands, query: Query<Entity, With<NextPieceBoard>>) {
+fn clear_next_piece_board(mut commands: Commands, query: Query<Entity, With<NextPieceBoard>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }
