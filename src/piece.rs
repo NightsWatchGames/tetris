@@ -1,9 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::{
-    board::*,
-    common::{GameAudios, GameState},
-};
+use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -151,38 +148,14 @@ pub struct PieceQueue(pub VecDeque<PieceConfig>);
 #[derive(Debug, Resource)]
 pub struct ManuallyMoveTimer(pub Timer);
 
-pub struct PiecePlugin;
-
-impl Plugin for PiecePlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_piece_queue);
-
-        app.add_system(
-            check_collision
-                .in_base_set(CoreSet::PostUpdate)
-                .run_if(state_exists_and_equals(GameState::GamePlaying)),
-        );
-
-        app.add_systems(
-            (
-                rotate_piece,
-                move_piece,
-                auto_generate_new_piece,
-                control_piece_visibility,
-            )
-                .in_set(OnUpdate(GameState::GamePlaying)),
-        );
-    }
-}
-
-fn setup_piece_queue(mut commands: Commands) {
+pub fn setup_piece_queue(mut commands: Commands) {
     let mut piece_queue = PieceQueue(VecDeque::new());
     piece_queue.0.extend(random_7_pieces());
     commands.insert_resource(piece_queue);
 }
 
 // 自动和手动移动四格骨牌
-fn move_piece(
+pub fn move_piece(
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
@@ -227,7 +200,7 @@ fn move_piece(
 }
 
 // 检查碰撞
-fn check_collision(
+pub fn check_collision(
     mut piece_query: Query<(&mut Block, &mut Movable), With<PieceType>>,
     board_query: Query<&Block, Without<PieceType>>,
 ) {
@@ -278,7 +251,7 @@ fn check_collision(
     }
 }
 
-fn rotate_piece(
+pub fn rotate_piece(
     keyboard_input: Res<Input<KeyCode>>,
     mut q_piece: Query<(&mut PieceType, &mut Block, &mut Transform)>,
     q_board: Query<&Block, Without<PieceType>>,
@@ -351,7 +324,7 @@ fn rotate_piece(
 }
 
 // 检测旋转过程中是否发送碰撞
-fn whether_colliding(
+pub fn whether_colliding(
     piece_query: &Query<(&mut PieceType, &mut Block, &mut Transform)>,
     board_query: &Query<&Block, Without<PieceType>>,
 ) -> bool {
@@ -392,7 +365,7 @@ fn whether_colliding(
     return false;
 }
 
-fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<PieceType>>) {
+pub fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<PieceType>>) {
     for (mut visibility, block) in &mut q_piece {
         if block.y > 19 {
             *visibility = Visibility::Hidden;
@@ -403,7 +376,7 @@ fn control_piece_visibility(mut q_piece: Query<(&mut Visibility, &Block), With<P
 }
 
 // 自动生成新的四格骨牌
-fn auto_generate_new_piece(
+pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&PieceType>,
     mut piece_queue: ResMut<PieceQueue>,
@@ -433,7 +406,7 @@ fn auto_generate_new_piece(
 }
 
 // bag7算法实现随机：每次填充7个随机排序的骨牌
-fn random_7_pieces() -> Vec<PieceConfig> {
+pub fn random_7_pieces() -> Vec<PieceConfig> {
     let mut rng = rand::thread_rng();
     let mut piece_type_set = BTreeSet::new();
 

@@ -24,15 +24,7 @@ pub struct GameAudios {
     pub line_clear: Handle<AudioSource>,
 }
 
-pub struct AudioPlugin;
-
-impl Plugin for AudioPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_game_audios);
-    }
-}
-
-fn setup_game_audios(mut command: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_game_audios(mut command: Commands, asset_server: Res<AssetServer>) {
     let game_audios = GameAudios {
         drop: asset_server.load("sounds/Drop.wav"),
         gameover: asset_server.load("sounds/Gameover.wav"),
