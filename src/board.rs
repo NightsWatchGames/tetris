@@ -135,7 +135,7 @@ pub fn setup_game_board(mut commands: Commands) {
     });
 }
 
-pub fn is_run(game_state: Res<State<GameState>>) -> bool {
+pub fn is_playing(game_state: Res<State<GameState>>) -> bool {
     if let GameState::GamePlaying = game_state.0 {
         return true;
     }
