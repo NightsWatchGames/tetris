@@ -388,11 +388,17 @@ pub fn click_button(
 }
 
 pub fn pause_game(
-    mut game_state: ResMut<NextState<GameState>>,
+    game_state: Res<State<GameState>>,
+    mut change_game_state: ResMut<NextState<GameState>>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    if keyboard_input.pressed(KeyCode::Escape) {
-        game_state.set(GameState::GamePaused);
+    // 修改为可以再次按下ESC恢复游戏，使用just_pressed防止循环触发
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        if let GameState::GamePlaying = game_state.0 {
+            change_game_state.set(GameState::GamePaused);
+        } else {
+            change_game_state.set(GameState::GamePlaying);
+        }
     }
 }
 

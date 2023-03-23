@@ -4,13 +4,13 @@ use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
-pub const SHAPE_I: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [6, 0]];
-pub const SHAPE_J: [[i32; 2]; 4] = [[3, 1], [3, 0], [4, 0], [5, 0]];
-pub const SHAPE_L: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [5, 1]];
-pub const SHAPE_O: [[i32; 2]; 4] = [[4, 1], [4, 0], [5, 1], [5, 0]];
-pub const SHAPE_S: [[i32; 2]; 4] = [[3, 0], [4, 0], [4, 1], [5, 1]];
-pub const SHAPE_T: [[i32; 2]; 4] = [[3, 0], [4, 1], [4, 0], [5, 0]];
-pub const SHAPE_Z: [[i32; 2]; 4] = [[3, 1], [4, 1], [4, 0], [5, 0]];
+const SHAPE_I: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [6, 0]];
+const SHAPE_J: [[i32; 2]; 4] = [[3, 1], [3, 0], [4, 0], [5, 0]];
+const SHAPE_L: [[i32; 2]; 4] = [[3, 0], [4, 0], [5, 0], [5, 1]];
+const SHAPE_O: [[i32; 2]; 4] = [[4, 1], [4, 0], [5, 1], [5, 0]];
+const SHAPE_S: [[i32; 2]; 4] = [[3, 0], [4, 0], [4, 1], [5, 1]];
+const SHAPE_T: [[i32; 2]; 4] = [[3, 0], [4, 1], [4, 0], [5, 0]];
+const SHAPE_Z: [[i32; 2]; 4] = [[3, 1], [4, 1], [4, 0], [5, 0]];
 
 pub fn piece_shape(piece_type: PieceType) -> [Block; 4] {
     match piece_type {
@@ -51,7 +51,7 @@ pub fn shift_piece(
     blocks
 }
 
-pub fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>) -> Block {
+fn shift_block(mut block: Block, delta_x: Option<i32>, delta_y: Option<i32>) -> Block {
     match delta_x {
         Some(delta) => {
             block.x += delta;
@@ -266,10 +266,8 @@ pub fn rotate_piece(
         let sum_x = q_piece.iter().map(|(_, block, _)| block.x).sum::<i32>();
         let sum_y = q_piece.iter().map(|(_, block, _)| block.y).sum::<i32>();
 
-        let original_blocks: Vec<Block> = q_piece
-            .iter()
-            .map(|(_, block, _)| block.clone())
-            .collect();
+        let original_blocks: Vec<Block> =
+            q_piece.iter().map(|(_, block, _)| block.clone()).collect();
         // 通过矩阵变化实现旋转，可以理解为沿y=x对称后沿y=0对称，然后平移
         for (_, mut block, mut transform) in &mut q_piece {
             *block = match piece_type {
@@ -408,7 +406,7 @@ pub fn auto_generate_new_piece(
 }
 
 // bag7算法实现随机：每次填充7个随机排序的骨牌
-fn random_7_pieces() -> Vec<PieceConfig> {
+pub fn random_7_pieces() -> Vec<PieceConfig> {
     let mut rng = rand::thread_rng();
     let mut piece_type_set = BTreeSet::new();
 
