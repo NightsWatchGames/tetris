@@ -53,11 +53,9 @@ fn main() {
             )
                 .in_schedule(OnEnter(AppState::MainMenu)),
         )
-        .add_system(click_button.in_set(OnUpdate(AppState::MainMenu)))
         .add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)))
         // Game Over Menu
         .add_system(setup_game_over_menu.in_schedule(OnEnter(AppState::GameOver)))
-        .add_system(click_button.in_set(OnUpdate(AppState::GameOver)))
         .add_systems(
             (
                 despawn_screen::<OnGameOverMenuScreen>,
@@ -69,16 +67,16 @@ fn main() {
                 .in_schedule(OnExit(AppState::GameOver)),
         )
         // Game Playing
+        // TODO 待 https://github.com/bevyengine/bevy/issues/7659 支持后利用引擎内置in_state方法
         .add_systems(
             (
                 check_collision,
                 remove_piece_component,
-                check_game_over,
-                check_full_line,
+                check_game_over.after(remove_piece_component),
+                check_full_line.after(remove_piece_component),
             )
-                .chain()
                 .in_base_set(CoreSet::PostUpdate)
-                .distributive_run_if(is_run),
+                .distributive_run_if(is_playing),
         )
         .add_systems(
             (
@@ -92,21 +90,8 @@ fn main() {
             )
                 .in_set(OnUpdate(GameState::GamePlaying)),
         )
-        .add_system(
-            pause_game.run_if(
-                state_exists_and_equals(GameState::GamePlaying)
-                    .or_else(state_exists_and_equals(GameState::GamePaused)),
-            ),
-        )
         // Game Paused
         .add_system(setup_game_paused_menu.in_schedule(OnEnter(GameState::GamePaused)))
-        .add_system(
-            click_button.run_if(
-                state_exists_and_equals(AppState::MainMenu)
-                    .or_else(state_exists_and_equals(AppState::GameOver))
-                    .or_else(state_exists_and_equals(GameState::GamePaused)),
-            ),
-        )
         .add_system(
             despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
         )
@@ -116,6 +101,20 @@ fn main() {
                 .in_schedule(OnEnter(GameState::GameRestarted)),
         )
         .add_system(play_game.in_set(OnUpdate(GameState::GameRestarted)))
+        // Common
+        .add_system(
+            pause_game.run_if(
+                state_exists_and_equals(GameState::GamePlaying)
+                    .or_else(state_exists_and_equals(GameState::GamePaused)),
+            ),
+        )
+        .add_system(
+            click_button.run_if(
+                state_exists_and_equals(AppState::MainMenu)
+                    .or_else(state_exists_and_equals(AppState::GameOver))
+                    .or_else(state_exists_and_equals(GameState::GamePaused)),
+            ),
+        )
         .run();
 }
 
