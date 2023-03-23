@@ -51,13 +51,13 @@ impl Plugin for MenuPlugin {
         app.add_system(play_game.in_set(OnUpdate(GameState::GameRestarted)));
 
         // 销毁界面
-        app.add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)));
-        app.add_system(
-            despawn_screen::<OnGameOverMenuScreen>.in_schedule(OnExit(AppState::GameOver)),
-        );
-        app.add_system(
-            despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
-        );
+        app.add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)))
+            .add_system(
+                despawn_screen::<OnGameOverMenuScreen>.in_schedule(OnExit(AppState::GameOver)),
+            )
+            .add_system(
+                despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
+            );
     }
 }
 
