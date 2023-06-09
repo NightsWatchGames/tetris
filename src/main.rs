@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, transform::TransformSystem};
 // use bevy_inspector_egui::prelude::*;
 use board::*;
 use common::*;
@@ -73,7 +73,9 @@ fn main() {
                 check_collision,
                 remove_piece_component,
                 check_game_over.after(remove_piece_component),
-                check_full_line.after(remove_piece_component),
+                check_full_line
+                    .after(remove_piece_component)
+                    .before(TransformSystem::TransformPropagate),
             )
                 .in_base_set(CoreSet::PostUpdate)
                 .distributive_run_if(is_playing),
