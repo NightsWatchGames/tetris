@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::{board::*, common::DropAudioMaker};
+use crate::{board::*, common::DropAudioMarker};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -157,7 +157,7 @@ pub fn setup_piece_queue(mut commands: Commands) {
 // 自动和手动移动四格骨牌
 pub fn move_piece(
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
-    audio_q: Query<&AudioSink, With<DropAudioMaker>>,
+    audio_q: Query<&AudioSink, With<DropAudioMarker>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
     mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
@@ -381,7 +381,6 @@ pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&PieceType>,
     mut piece_queue: ResMut<PieceQueue>,
-    asset_server: Res<AssetServer>,
 ) {
     if piece_queue.0.len() < PieceType::PIECE_AMOUNT as usize {
         piece_queue.0.extend(random_7_pieces());
@@ -396,10 +395,6 @@ pub fn auto_generate_new_piece(
         for block in piece_config.blocks.iter() {
             commands
                 .spawn(piece_type)
-                .insert(AudioBundle {
-                    source: asset_server.load("sounds/Drop.wav"),
-                    ..default()
-                })
                 .insert(new_block_sprite(&block, color, visibility))
                 .insert(*block)
                 .insert(Movable {

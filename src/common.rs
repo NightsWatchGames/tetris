@@ -18,13 +18,13 @@ pub enum GameState {
 }
 
 #[derive(Debug, Component)]
-pub struct LineClearAudioMaker;
+pub struct LineClearAudioMarker;
 
 #[derive(Debug, Component)]
-pub struct GameOverAudioMaker;
+pub struct GameOverAudioMarker;
 
 #[derive(Debug, Component)]
-pub struct DropAudioMaker;
+pub struct DropAudioMarker;
 
 pub fn setup_game_audios(mut command: Commands, asset_server: Res<AssetServer>) {
     let drop = asset_server.load("sounds/Drop.wav");
@@ -36,20 +36,20 @@ pub fn setup_game_audios(mut command: Commands, asset_server: Res<AssetServer>) 
             source: drop,
             ..Default::default()
         },
-        DropAudioMaker,
+        DropAudioMarker,
     ));
     command.spawn((
         AudioBundle {
             source: game_over,
             ..Default::default()
         },
-        GameOverAudioMaker,
+        GameOverAudioMarker,
     ));
     command.spawn((
         AudioBundle {
             source: line_clear,
             ..Default::default()
         },
-        LineClearAudioMaker,
+        LineClearAudioMarker,
     ));
 }

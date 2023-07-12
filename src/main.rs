@@ -102,11 +102,11 @@ fn main() {
                 .run_if(in_state(GameState::GamePlaying)),
         )
         .add_systems(OnEnter(GameState::GamePaused), setup_game_paused_menu)
+        // Game Paused
         .add_systems(
             OnExit(GameState::GamePaused),
             despawn_screen::<OnGamePausedMenuScreen>,
         )
-        // Game Paused
         // Game Restarted
         .add_systems(
             OnEnter(GameState::GameRestarted),

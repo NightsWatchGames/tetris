@@ -180,7 +180,7 @@ pub fn check_full_line(
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
     mut query: Query<(Entity, &mut Block, &mut Transform), Without<PieceType>>,
-    audio_q: Query<&AudioSink, With<LineClearAudioMaker>>,
+    audio_q: Query<&AudioSink, With<LineClearAudioMarker>>,
 ) {
     let sink = audio_q.single();
     let mut y_to_x_set_map: HashMap<i32, HashSet<i32>> = HashMap::new();
@@ -202,7 +202,7 @@ pub fn check_full_line(
     }
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
-        sink.play()
+        sink.play();
     }
     // 行数增加
     lines.0 += full_lines.len() as u32;
@@ -248,7 +248,7 @@ pub fn check_game_over(
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
-    audio_q: Query<&AudioSink, With<GameOverAudioMaker>>,
+    audio_q: Query<&AudioSink, With<GameOverAudioMarker>>,
 ) {
     let sink = audio_q.single();
     let mut max_block_y = 0;
