@@ -37,38 +37,47 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
         .add_state::<GameState>()
-        .add_startup_system(setup_camera)
-        .add_startup_system(setup_game_board)
-        .add_startup_system(setup_stats_boards)
-        .add_startup_system(setup_game_audios)
-        .add_startup_system(setup_piece_queue)
+        .add_systems(
+            Startup,
+            (
+                setup_camera,
+                setup_game_board,
+                setup_stats_boards,
+                setup_game_audios,
+                setup_piece_queue,
+            ),
+        )
         // Main Menu
         .add_systems(
+            OnEnter(AppState::MainMenu),
             (
                 setup_main_menu,
                 clear_game_board,
                 reset_score,
                 reset_lines,
                 clear_next_piece_board,
-            )
-                .in_schedule(OnEnter(AppState::MainMenu)),
+            ),
         )
-        .add_system(despawn_screen::<OnMainMenuScreen>.in_schedule(OnExit(AppState::MainMenu)))
-        // Game Over Menu
-        .add_system(setup_game_over_menu.in_schedule(OnEnter(AppState::GameOver)))
         .add_systems(
+            OnExit(AppState::MainMenu),
+            despawn_screen::<OnMainMenuScreen>,
+        )
+        // Game Over Menu
+        .add_systems(OnEnter(AppState::GameOver), setup_game_over_menu)
+        .add_systems(
+            OnExit(AppState::GameOver),
             (
                 despawn_screen::<OnGameOverMenuScreen>,
                 clear_game_board,
                 reset_score,
                 reset_lines,
                 clear_next_piece_board,
-            )
-                .in_schedule(OnExit(AppState::GameOver)),
+            ),
         )
         // Game Playing
         // TODO 待 https://github.com/bevyengine/bevy/issues/7659 支持后利用引擎内置in_state方法
         .add_systems(
+            PostUpdate,
             (
                 check_collision,
                 remove_piece_component,
@@ -77,10 +86,10 @@ fn main() {
                     .after(remove_piece_component)
                     .before(TransformSystem::TransformPropagate),
             )
-                .in_base_set(CoreSet::PostUpdate)
                 .distributive_run_if(is_playing),
         )
         .add_systems(
+            Update,
             (
                 rotate_piece,
                 move_piece,
@@ -90,27 +99,30 @@ fn main() {
                 update_next_piece_board,
                 control_piece_visibility,
             )
-                .in_set(OnUpdate(GameState::GamePlaying)),
+                .run_if(in_state(GameState::GamePlaying)),
+        )
+        .add_systems(OnEnter(GameState::GamePaused), setup_game_paused_menu)
+        .add_systems(
+            OnExit(GameState::GamePaused),
+            despawn_screen::<OnGamePausedMenuScreen>,
         )
         // Game Paused
-        .add_system(setup_game_paused_menu.in_schedule(OnEnter(GameState::GamePaused)))
-        .add_system(
-            despawn_screen::<OnGamePausedMenuScreen>.in_schedule(OnExit(GameState::GamePaused)),
-        )
         // Game Restarted
         .add_systems(
-            (clear_game_board, reset_score, reset_lines)
-                .in_schedule(OnEnter(GameState::GameRestarted)),
+            OnEnter(GameState::GameRestarted),
+            (clear_game_board, reset_score, reset_lines),
         )
-        .add_system(play_game.in_set(OnUpdate(GameState::GameRestarted)))
+        .add_systems(Update, play_game.run_if(in_state(GameState::GameRestarted)))
         // Common
-        .add_system(
+        .add_systems(
+            Update,
             pause_game.run_if(
                 state_exists_and_equals(GameState::GamePlaying)
                     .or_else(state_exists_and_equals(GameState::GamePaused)),
             ),
         )
-        .add_system(
+        .add_systems(
+            Update,
             click_button.run_if(
                 state_exists_and_equals(AppState::MainMenu)
                     .or_else(state_exists_and_equals(AppState::GameOver))

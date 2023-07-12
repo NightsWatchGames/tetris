@@ -26,7 +26,8 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..default()
@@ -68,7 +69,8 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(50.0), Val::Px(30.0)),
+                                    width: Val::Px(50.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -95,7 +97,8 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(50.0), Val::Px(30.0)),
+                                    width: Val::Px(50.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -125,7 +128,8 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..default()
@@ -167,7 +171,8 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    width: Val::Px(90.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -194,7 +199,8 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    width: Val::Px(90.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -224,7 +230,8 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..default()
@@ -266,7 +273,8 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    width: Val::Px(90.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -293,7 +301,8 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    width: Val::Px(90.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -320,7 +329,8 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Px(90.0), Val::Px(30.0)),
+                                    width: Val::Px(90.0),
+                                    height: Val::Px(30.0),
                                     margin: UiRect::all(Val::Px(10.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -356,7 +366,7 @@ pub fn click_button(
 ) {
     for (interaction, menu_button_action) in &mut interaction_query {
         match *interaction {
-            Interaction::Clicked => match menu_button_action {
+            Interaction::Pressed => match menu_button_action {
                 MenuButtonAction::StartGame => {
                     info!("StartGame button clicked");
                     app_state.set(AppState::InGame);
@@ -394,7 +404,7 @@ pub fn pause_game(
 ) {
     // 修改为可以再次按下ESC恢复游戏，使用just_pressed防止循环触发
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        if let GameState::GamePlaying = game_state.0 {
+        if let GameState::GamePlaying = game_state.get() {
             change_game_state.set(GameState::GamePaused);
         } else {
             change_game_state.set(GameState::GamePlaying);

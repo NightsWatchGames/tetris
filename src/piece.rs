@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::{board::*, common::GameAudios};
+use crate::{board::*, common::DropAudioMaker};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -157,13 +157,13 @@ pub fn setup_piece_queue(mut commands: Commands) {
 // 自动和手动移动四格骨牌
 pub fn move_piece(
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
+    audio_q: Query<&AudioSink, With<DropAudioMaker>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
     mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
     time: Res<Time>,
-    audio: Res<Audio>,
-    game_audios: Res<GameAudios>,
 ) {
+    let sink = audio_q.single();
     manually_move_timer.0.tick(time.delta());
     auto_move_timer.0.tick(time.delta());
     let mut reset_manually_move_timer = false;
@@ -173,22 +173,23 @@ pub fn move_piece(
         // 自动下移
         if auto_move_timer.0.just_finished() && movable.can_down {
             block.y -= 1;
-            audio.play(game_audios.drop.clone());
+
+            sink.play();
             already_down = true;
         }
         // 手动移动
         if manually_move_timer.0.finished() {
             if keyboard_input.pressed(KeyCode::Left) && movable.can_left {
                 block.x -= 1;
-                audio.play(game_audios.drop.clone());
+                sink.play();
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Right) && movable.can_right {
                 block.x += 1;
-                audio.play(game_audios.drop.clone());
+                sink.play();
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Down) && movable.can_down && !already_down {
                 block.y -= 1;
-                audio.play(game_audios.drop.clone());
+                sink.play();
                 reset_manually_move_timer = true;
             }
         }
@@ -380,6 +381,7 @@ pub fn auto_generate_new_piece(
     mut commands: Commands,
     query: Query<&PieceType>,
     mut piece_queue: ResMut<PieceQueue>,
+    asset_server: Res<AssetServer>,
 ) {
     if piece_queue.0.len() < PieceType::PIECE_AMOUNT as usize {
         piece_queue.0.extend(random_7_pieces());
@@ -394,6 +396,10 @@ pub fn auto_generate_new_piece(
         for block in piece_config.blocks.iter() {
             commands
                 .spawn(piece_type)
+                .insert(AudioBundle {
+                    source: asset_server.load("sounds/Drop.wav"),
+                    ..default()
+                })
                 .insert(new_block_sprite(&block, color, visibility))
                 .insert(*block)
                 .insert(Movable {
