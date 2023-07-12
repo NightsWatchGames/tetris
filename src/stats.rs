@@ -66,11 +66,8 @@ pub fn setup_stats_boards(
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
-                position: UiRect {
-                    top: Val::Px(gameboard_left_corner_pos.1),
-                    left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
-                    ..default()
-                },
+                top: Val::Px(gameboard_left_corner_pos.1),
+                left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
             }),
         )
@@ -99,11 +96,8 @@ pub fn setup_stats_boards(
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
-                position: UiRect {
-                    top: Val::Px(gameboard_left_corner_pos.1 + STATS_BOARD_WIDTH),
-                    left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
-                    ..default()
-                },
+                top: Val::Px(gameboard_left_corner_pos.1 + STATS_BOARD_WIDTH),
+                left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
             }),
         )

@@ -136,7 +136,7 @@ pub fn setup_game_board(mut commands: Commands) {
 }
 
 pub fn is_playing(game_state: Res<State<GameState>>) -> bool {
-    if let GameState::GamePlaying = game_state.0 {
+    if let GameState::GamePlaying = game_state.get() {
         return true;
     }
     false
@@ -180,9 +180,9 @@ pub fn check_full_line(
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
     mut query: Query<(Entity, &mut Block, &mut Transform), Without<PieceType>>,
-    audio: Res<Audio>,
-    game_audios: Res<GameAudios>,
+    audio_q: Query<&AudioSink, With<LineClearAudioMarker>>,
 ) {
+    let sink = audio_q.single();
     let mut y_to_x_set_map: HashMap<i32, HashSet<i32>> = HashMap::new();
     for (_, block, _) in &query {
         if y_to_x_set_map.contains_key(&block.y) {
@@ -202,7 +202,7 @@ pub fn check_full_line(
     }
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
-        audio.play(game_audios.line_clear.clone());
+        sink.play();
     }
     // 行数增加
     lines.0 += full_lines.len() as u32;
@@ -248,9 +248,9 @@ pub fn check_game_over(
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
-    audio: Res<Audio>,
-    game_audios: Res<GameAudios>,
+    audio_q: Query<&AudioSink, With<GameOverAudioMarker>>,
 ) {
+    let sink = audio_q.single();
     let mut max_block_y = 0;
     for block in &query {
         if block.y > max_block_y {
@@ -259,7 +259,7 @@ pub fn check_game_over(
     }
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
-        audio.play(game_audios.gameover.clone());
+        sink.play();
         app_state.set(AppState::GameOver);
         game_state.set(GameState::GameQuited);
     }
