@@ -135,13 +135,6 @@ pub fn setup_game_board(mut commands: Commands) {
     });
 }
 
-pub fn is_playing(game_state: Res<State<GameState>>) -> bool {
-    if let GameState::GamePlaying = game_state.get() {
-        return true;
-    }
-    false
-}
-
 // 当piece移到底部后，移除piece组件
 pub fn remove_piece_component(
     mut commands: Commands,

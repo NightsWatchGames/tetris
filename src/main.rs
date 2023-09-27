@@ -74,7 +74,6 @@ fn main() {
             ),
         )
         // Game Playing
-        // TODO 待 https://github.com/bevyengine/bevy/issues/7659 支持后利用引擎内置in_state方法
         .add_systems(
             PostUpdate,
             (
@@ -85,7 +84,7 @@ fn main() {
                     .after(remove_piece_component)
                     .before(TransformSystem::TransformPropagate),
             )
-                .distributive_run_if(is_playing),
+                .run_if(in_state(GameState::GamePlaying)),
         )
         .add_systems(
             Update,
