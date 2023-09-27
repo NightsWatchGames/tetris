@@ -177,12 +177,11 @@ pub fn remove_piece_component(
 // 检查是否有成功的行
 pub fn check_full_line(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
     mut query: Query<(Entity, &mut Block, &mut Transform), Without<PieceType>>,
-    audio_q: Query<&AudioSink, With<LineClearAudioMarker>>,
 ) {
-    let sink = audio_q.single();
     let mut y_to_x_set_map: HashMap<i32, HashSet<i32>> = HashMap::new();
     for (_, block, _) in &query {
         if y_to_x_set_map.contains_key(&block.y) {
@@ -202,7 +201,10 @@ pub fn check_full_line(
     }
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
-        sink.play();
+        commands.spawn(AudioBundle {
+            source: asset_server.load("sounds/Lineclear.wav"),
+            ..default()
+        });
     }
     // 行数增加
     lines.0 += full_lines.len() as u32;
@@ -213,15 +215,13 @@ pub fn check_full_line(
         2 => 200,
         3 => 400,
         4 => 800,
-        _ => {
-            panic!("No matched score")
-        }
+        _ => 1000,
     };
 
     // 消除行
     let mut despawn_entities = Vec::new();
     for line_no in full_lines.iter() {
-        let line_no = line_no.clone().to_owned();
+        let line_no = **line_no;
         for (entity, block, _) in &mut query {
             if block.y == line_no {
                 despawn_entities.push(entity);
@@ -234,7 +234,7 @@ pub fn check_full_line(
     full_lines.reverse();
     for line_no in full_lines.iter() {
         for (entity, mut block, mut transform) in &mut query {
-            if !despawn_entities.contains(&entity) && block.y > line_no.clone().to_owned() {
+            if !despawn_entities.contains(&entity) && block.y > **line_no {
                 info!("down block: {:?}, line_no: {}", block, line_no);
                 block.y -= 1;
                 transform.translation = block.translation();
@@ -245,12 +245,12 @@ pub fn check_full_line(
 
 // 检查是否游戏结束
 pub fn check_game_over(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
-    audio_q: Query<&AudioSink, With<GameOverAudioMarker>>,
 ) {
-    let sink = audio_q.single();
     let mut max_block_y = 0;
     for block in &query {
         if block.y > max_block_y {
@@ -259,7 +259,10 @@ pub fn check_game_over(
     }
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
-        sink.play();
+        commands.spawn(AudioBundle {
+            source: asset_server.load("sounds/Gameover.wav"),
+            ..default()
+        });
         app_state.set(AppState::GameOver);
         game_state.set(GameState::GameQuited);
     }

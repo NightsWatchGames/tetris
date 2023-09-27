@@ -43,7 +43,6 @@ fn main() {
                 setup_camera,
                 setup_game_board,
                 setup_stats_boards,
-                setup_game_audios,
                 setup_piece_queue,
             ),
         )

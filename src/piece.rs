@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::{board::*, common::DropAudioMarker};
+use crate::board::*;
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -156,14 +156,14 @@ pub fn setup_piece_queue(mut commands: Commands) {
 
 // 自动和手动移动四格骨牌
 pub fn move_piece(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
-    audio_q: Query<&AudioSink, With<DropAudioMarker>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
     mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
     time: Res<Time>,
 ) {
-    let sink = audio_q.single();
     manually_move_timer.0.tick(time.delta());
     auto_move_timer.0.tick(time.delta());
     let mut reset_manually_move_timer = false;
@@ -174,22 +174,22 @@ pub fn move_piece(
         if auto_move_timer.0.just_finished() && movable.can_down {
             block.y -= 1;
 
-            sink.play();
+            spawn_drop_audio(&mut commands, &asset_server);
             already_down = true;
         }
         // 手动移动
         if manually_move_timer.0.finished() {
             if keyboard_input.pressed(KeyCode::Left) && movable.can_left {
                 block.x -= 1;
-                sink.play();
+                spawn_drop_audio(&mut commands, &asset_server);
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Right) && movable.can_right {
                 block.x += 1;
-                sink.play();
+                spawn_drop_audio(&mut commands, &asset_server);
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Down) && movable.can_down && !already_down {
                 block.y -= 1;
-                sink.play();
+                spawn_drop_audio(&mut commands, &asset_server);
                 reset_manually_move_timer = true;
             }
         }
@@ -198,6 +198,13 @@ pub fn move_piece(
     if reset_manually_move_timer {
         manually_move_timer.0.reset();
     }
+}
+
+fn spawn_drop_audio(commands: &mut Commands, asset_server: &Res<AssetServer>) {
+    commands.spawn(AudioBundle {
+        source: asset_server.load("sounds/Drop.wav"),
+        settings: PlaybackSettings::DESPAWN,
+    });
 }
 
 // 检查碰撞
