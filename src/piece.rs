@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
-use crate::board::*;
+use crate::{board::*, common::GameAudios};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -157,7 +157,7 @@ pub fn setup_piece_queue(mut commands: Commands) {
 // 自动和手动移动四格骨牌
 pub fn move_piece(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    game_audios: Res<GameAudios>,
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
@@ -174,22 +174,22 @@ pub fn move_piece(
         if auto_move_timer.0.just_finished() && movable.can_down {
             block.y -= 1;
 
-            spawn_drop_audio(&mut commands, &asset_server);
+            spawn_drop_audio(&mut commands, &game_audios);
             already_down = true;
         }
         // 手动移动
         if manually_move_timer.0.finished() {
             if keyboard_input.pressed(KeyCode::Left) && movable.can_left {
                 block.x -= 1;
-                spawn_drop_audio(&mut commands, &asset_server);
+                spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Right) && movable.can_right {
                 block.x += 1;
-                spawn_drop_audio(&mut commands, &asset_server);
+                spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
             } else if keyboard_input.pressed(KeyCode::Down) && movable.can_down && !already_down {
                 block.y -= 1;
-                spawn_drop_audio(&mut commands, &asset_server);
+                spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
             }
         }
@@ -200,9 +200,9 @@ pub fn move_piece(
     }
 }
 
-fn spawn_drop_audio(commands: &mut Commands, asset_server: &Res<AssetServer>) {
+fn spawn_drop_audio(commands: &mut Commands, game_audios: &Res<GameAudios>) {
     commands.spawn(AudioBundle {
-        source: asset_server.load("sounds/Drop.wav"),
+        source: game_audios.drop.clone(),
         settings: PlaybackSettings::DESPAWN,
     });
 }

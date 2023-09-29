@@ -170,7 +170,7 @@ pub fn remove_piece_component(
 // 检查是否有成功的行
 pub fn check_full_line(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    game_audios: Res<GameAudios>,
     mut score: ResMut<Score>,
     mut lines: ResMut<Lines>,
     mut query: Query<(Entity, &mut Block, &mut Transform), Without<PieceType>>,
@@ -195,7 +195,7 @@ pub fn check_full_line(
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
         commands.spawn(AudioBundle {
-            source: asset_server.load("sounds/Lineclear.wav"),
+            source: game_audios.line_clear.clone(),
             ..default()
         });
     }
@@ -239,7 +239,7 @@ pub fn check_full_line(
 // 检查是否游戏结束
 pub fn check_game_over(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    game_audios: Res<GameAudios>,
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
     query: Query<&Block, Without<PieceType>>,
@@ -253,7 +253,7 @@ pub fn check_game_over(
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
         commands.spawn(AudioBundle {
-            source: asset_server.load("sounds/Gameover.wav"),
+            source: game_audios.gameover.clone(),
             ..default()
         });
         app_state.set(AppState::GameOver);
