@@ -53,9 +53,9 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         TextBundle::from_section(
                             "Tetris Main Menu",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                 font_size: 25.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
+                                ..default()
                             },
                         )
                         .with_style(Style {
@@ -85,9 +85,9 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                             parent.spawn(TextBundle::from_section(
                                 "Start",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -113,9 +113,9 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                             parent.spawn(TextBundle::from_section(
                                 "Quit",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -155,9 +155,9 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
                         TextBundle::from_section(
                             "Game Over",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                 font_size: 25.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
+                                ..default()
                             },
                         )
                         .with_style(Style {
@@ -187,9 +187,9 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
                             parent.spawn(TextBundle::from_section(
                                 "Main Menu",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -215,9 +215,9 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
                             parent.spawn(TextBundle::from_section(
                                 "Restart",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -257,9 +257,9 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                         TextBundle::from_section(
                             "Game Paused",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                 font_size: 25.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
+                                ..default()
                             },
                         )
                         .with_style(Style {
@@ -289,9 +289,9 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                             parent.spawn(TextBundle::from_section(
                                 "Main Menu",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -317,9 +317,9 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                             parent.spawn(TextBundle::from_section(
                                 "Restart",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });
@@ -345,9 +345,9 @@ pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetSer
                             parent.spawn(TextBundle::from_section(
                                 "Resume",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
+                                    ..default()
                                 },
                             ));
                         });

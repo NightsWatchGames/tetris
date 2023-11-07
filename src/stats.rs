@@ -50,17 +50,17 @@ pub fn setup_stats_boards(
                 TextSection::new(
                     "Score: ",
                     TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(0.5, 0.5, 1.0),
+                        ..default()
                     },
                 ),
                 TextSection::new(
                     "0",
                     TextStyle {
-                        font: asset_server.load("fonts/FiraMono-Medium.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(1.0, 0.5, 0.5),
+                        ..default()
                     },
                 ),
             ])
@@ -80,17 +80,17 @@ pub fn setup_stats_boards(
                 TextSection::new(
                     "Lines: ",
                     TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(0.5, 0.5, 1.0),
+                        ..default()
                     },
                 ),
                 TextSection::new(
                     "0",
                     TextStyle {
-                        font: asset_server.load("fonts/FiraMono-Medium.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(1.0, 0.5, 0.5),
+                        ..default()
                     },
                 ),
             ])
