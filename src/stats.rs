@@ -32,7 +32,6 @@ pub struct NextPieceBoard;
 
 pub fn setup_stats_boards(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     windows: Query<&Window>,
 ) {
     // 通过窗口大小和棋盘大小计算stats位置

@@ -21,7 +21,7 @@ pub enum MenuButtonAction {
     Quit,
 }
 
-pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_main_menu(mut commands: Commands) {
     commands
         .spawn((
             NodeBundle {
@@ -123,7 +123,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_game_over_menu(mut commands: Commands) {
     commands
         .spawn((
             NodeBundle {
@@ -225,7 +225,7 @@ pub fn setup_game_over_menu(mut commands: Commands, asset_server: Res<AssetServe
         });
 }
 
-pub fn setup_game_paused_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_game_paused_menu(mut commands: Commands) {
     commands
         .spawn((
             NodeBundle {
