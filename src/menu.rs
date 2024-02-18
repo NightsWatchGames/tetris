@@ -400,7 +400,7 @@ pub fn click_button(
 pub fn pause_game(
     game_state: Res<State<GameState>>,
     mut change_game_state: ResMut<NextState<GameState>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     // 修改为可以再次按下ESC恢复游戏，使用just_pressed防止循环触发
     if keyboard_input.just_pressed(KeyCode::Escape) {

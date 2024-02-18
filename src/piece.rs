@@ -159,7 +159,7 @@ pub fn move_piece(
     mut commands: Commands,
     game_audios: Res<GameAudios>,
     mut query: Query<(&mut Block, &mut Transform, &Movable), With<PieceType>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut manually_move_timer: ResMut<ManuallyMoveTimer>,
     mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
     time: Res<Time>,
@@ -179,15 +179,18 @@ pub fn move_piece(
         }
         // 手动移动
         if manually_move_timer.0.finished() {
-            if keyboard_input.pressed(KeyCode::Left) && movable.can_left {
+            if keyboard_input.pressed(KeyCode::ArrowLeft) && movable.can_left {
                 block.x -= 1;
                 spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
-            } else if keyboard_input.pressed(KeyCode::Right) && movable.can_right {
+            } else if keyboard_input.pressed(KeyCode::ArrowRight) && movable.can_right {
                 block.x += 1;
                 spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
-            } else if keyboard_input.pressed(KeyCode::Down) && movable.can_down && !already_down {
+            } else if keyboard_input.pressed(KeyCode::ArrowDown)
+                && movable.can_down
+                && !already_down
+            {
                 block.y -= 1;
                 spawn_drop_audio(&mut commands, &game_audios);
                 reset_manually_move_timer = true;
@@ -260,11 +263,11 @@ pub fn check_collision(
 }
 
 pub fn rotate_piece(
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut q_piece: Query<(&mut PieceType, &mut Block, &mut Transform)>,
     q_board: Query<&Block, Without<PieceType>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::Up) {
+    if keyboard_input.just_pressed(KeyCode::ArrowUp) {
         let piece_type = match q_piece.iter().next() {
             Some((piece_type, _, _)) => piece_type.clone(),
             None => {

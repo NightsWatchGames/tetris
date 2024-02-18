@@ -30,10 +30,7 @@ pub struct NextPieceType(pub Option<PieceType>);
 #[derive(Debug, Component)]
 pub struct NextPieceBoard;
 
-pub fn setup_stats_boards(
-    mut commands: Commands,
-    windows: Query<&Window>,
-) {
+pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
     // 通过窗口大小和棋盘大小计算stats位置
     let window = windows.single();
     // gameboard左上角在窗口上的位置

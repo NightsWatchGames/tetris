@@ -35,8 +35,8 @@ fn main() {
             TimerMode::Once,
         )))
         .add_plugins(DefaultPlugins)
-        .add_state::<AppState>()
-        .add_state::<GameState>()
+        .init_state::<AppState>()
+        .init_state::<GameState>()
         .add_systems(
             Startup,
             (
@@ -115,17 +115,15 @@ fn main() {
         // Common
         .add_systems(
             Update,
-            pause_game.run_if(
-                state_exists_and_equals(GameState::GamePlaying)
-                    .or_else(state_exists_and_equals(GameState::GamePaused)),
-            ),
+            pause_game
+                .run_if(in_state(GameState::GamePlaying).or_else(in_state(GameState::GamePaused))),
         )
         .add_systems(
             Update,
             click_button.run_if(
-                state_exists_and_equals(AppState::MainMenu)
-                    .or_else(state_exists_and_equals(AppState::GameOver))
-                    .or_else(state_exists_and_equals(GameState::GamePaused)),
+                in_state(AppState::MainMenu)
+                    .or_else(in_state(AppState::GameOver))
+                    .or_else(in_state(GameState::GamePaused)),
             ),
         )
         .run();

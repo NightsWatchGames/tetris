@@ -140,7 +140,7 @@ pub fn remove_piece_component(
     mut commands: Commands,
     q_piece_blocks: Query<(Entity, &Movable), With<PieceType>>,
     mut timer: ResMut<RemovePieceComponentTimer>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     if !q_piece_blocks.is_empty() && !q_piece_blocks.iter().last().unwrap().1.can_down {
@@ -156,7 +156,7 @@ pub fn remove_piece_component(
         // 到达底部后，仍可短时间内左右移动
         if !movable.can_down {
             // 当到达底部后，按向下键时，跳过timer直接开始新一个piece
-            if timer.0.just_finished() || keyboard_input.pressed(KeyCode::Down) {
+            if timer.0.just_finished() || keyboard_input.pressed(KeyCode::ArrowDown) {
                 commands.entity(entity).remove::<PieceType>();
                 reset_timer = true;
             }
