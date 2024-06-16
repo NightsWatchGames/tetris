@@ -35,8 +35,8 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
     let window = windows.single();
     // gameboard左上角在窗口上的位置
     let gameboard_left_corner_pos = (
-        window.width() / 2.0 - 5.0 * BLOCK_LENGTH,
-        window.height() / 2.0 - 10.0 * BLOCK_LENGTH,
+        window.physical_width() as f32 / 2.0 - 5.0 * BLOCK_LENGTH,
+        window.physical_height() as f32 / 2.0 - 10.0 * BLOCK_LENGTH,
     );
     info!("gameboard_left_corner_pos: {:?}", gameboard_left_corner_pos);
     // 分数
