@@ -1,4 +1,5 @@
 use bevy::app::AppExit;
+use bevy::color::palettes;
 use bevy::prelude::*;
 
 use crate::common::{AppState, GameState};
@@ -44,7 +45,7 @@ pub fn setup_main_menu(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -54,7 +55,7 @@ pub fn setup_main_menu(mut commands: Commands) {
                             "Tetris Main Menu",
                             TextStyle {
                                 font_size: 25.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
+                                color: Color::srgb(0.9, 0.9, 0.9),
                                 ..default()
                             },
                         )
@@ -76,7 +77,8 @@ pub fn setup_main_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::StartGame,
@@ -86,7 +88,7 @@ pub fn setup_main_menu(mut commands: Commands) {
                                 "Start",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -104,7 +106,8 @@ pub fn setup_main_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::Quit,
@@ -114,7 +117,7 @@ pub fn setup_main_menu(mut commands: Commands) {
                                 "Quit",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -146,7 +149,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -156,7 +159,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                             "Game Over",
                             TextStyle {
                                 font_size: 25.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
+                                color: Color::srgb(0.9, 0.9, 0.9),
                                 ..default()
                             },
                         )
@@ -178,7 +181,8 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::BackToMainMenu,
@@ -188,7 +192,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                                 "Main Menu",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -206,7 +210,8 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::RestartGame,
@@ -216,7 +221,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                                 "Restart",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -248,7 +253,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::CRIMSON.into(),
+                    background_color: palettes::css::CRIMSON.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -258,7 +263,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                             "Game Paused",
                             TextStyle {
                                 font_size: 25.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
+                                color: Color::srgb(0.9, 0.9, 0.9),
                                 ..default()
                             },
                         )
@@ -280,7 +285,8 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::BackToMainMenu,
@@ -290,7 +296,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                 "Main Menu",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -308,7 +314,8 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::RestartGame,
@@ -318,7 +325,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                 "Restart",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -336,7 +343,8 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                                image: UiImage::default()
+                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                                 ..default()
                             },
                             MenuButtonAction::ResumeGame,
@@ -346,7 +354,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                                 "Resume",
                                 TextStyle {
                                     font_size: 20.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
+                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
                             ));
@@ -379,7 +387,7 @@ pub fn click_button(
                 }
                 MenuButtonAction::BackToMainMenu => {
                     info!("BackToMainMenu button clicked");
-                    println!("{:?}", app_state.0);
+                    println!("{:?}", app_state);
                     app_state.set(AppState::MainMenu);
                     game_state.set(GameState::GameQuited);
                 }

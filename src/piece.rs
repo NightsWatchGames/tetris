@@ -1,3 +1,4 @@
+use bevy::color::palettes;
 use std::collections::{BTreeSet, VecDeque};
 
 use crate::{board::*, common::GameAudios};
@@ -111,15 +112,15 @@ pub struct PieceConfig {
 
 impl PieceConfig {
     pub fn new(piece_type: PieceType, blocks: [Block; 4]) -> Self {
-        let color = match piece_type {
-            PieceType::I => Color::CYAN,
-            PieceType::J => Color::BLUE,
-            PieceType::L => Color::ORANGE,
-            PieceType::O => Color::YELLOW,
-            PieceType::S => Color::GREEN,
-            PieceType::T => Color::PURPLE,
-            PieceType::Z => Color::RED,
-        };
+        let color = Color::Srgba(match piece_type {
+            PieceType::I => palettes::css::LIGHT_CYAN,
+            PieceType::J => palettes::css::BLUE,
+            PieceType::L => palettes::css::ORANGE,
+            PieceType::O => palettes::css::YELLOW,
+            PieceType::S => palettes::css::GREEN,
+            PieceType::T => palettes::css::PURPLE,
+            PieceType::Z => palettes::css::RED,
+        });
         PieceConfig {
             piece_type,
             blocks,

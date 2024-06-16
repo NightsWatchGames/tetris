@@ -18,7 +18,7 @@ pub const BLOCK_STICKER_LENGTH: f32 = 28.0;
 
 // game board 边界厚度
 pub const BORDER_THICKNESS: f32 = 10.0;
-pub const BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const BORDER_COLOR: Color = Color::srgb(0.8, 0.8, 0.8);
 
 // 方块
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]

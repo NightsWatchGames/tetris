@@ -47,7 +47,7 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
                     "Score: ",
                     TextStyle {
                         font_size: 40.0,
-                        color: Color::rgb(0.5, 0.5, 1.0),
+                        color: Color::srgb(0.5, 0.5, 1.0),
                         ..default()
                     },
                 ),
@@ -55,7 +55,7 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
                     "0",
                     TextStyle {
                         font_size: 40.0,
-                        color: Color::rgb(1.0, 0.5, 0.5),
+                        color: Color::srgb(1.0, 0.5, 0.5),
                         ..default()
                     },
                 ),
@@ -77,7 +77,7 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
                     "Lines: ",
                     TextStyle {
                         font_size: 40.0,
-                        color: Color::rgb(0.5, 0.5, 1.0),
+                        color: Color::srgb(0.5, 0.5, 1.0),
                         ..default()
                     },
                 ),
@@ -85,7 +85,7 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
                     "0",
                     TextStyle {
                         font_size: 40.0,
-                        color: Color::rgb(1.0, 0.5, 0.5),
+                        color: Color::srgb(1.0, 0.5, 0.5),
                         ..default()
                     },
                 ),
