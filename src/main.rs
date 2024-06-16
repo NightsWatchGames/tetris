@@ -14,13 +14,11 @@ mod menu;
 mod piece;
 mod stats;
 
-const BACKGROUND_COLOR: Color = Color::BLACK;
-
 fn main() {
     App::new()
         .insert_resource(Score(0))
         .insert_resource(Lines(0))
-        .insert_resource(ClearColor(BACKGROUND_COLOR))
+        .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(NextPieceType(None))
         .insert_resource(AutoMovePieceDownTimer(Timer::new(
             Duration::from_millis(1000),
