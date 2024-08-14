@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use bevy::{prelude::*, transform::TransformSystem};
-// use bevy_inspector_egui::prelude::*;
 use board::*;
 use common::*;
 use menu::*;

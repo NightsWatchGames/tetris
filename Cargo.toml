@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rand = "0.8.0"
+rand = "0.8"
 
 [dependencies.bevy]
-version = "0.14.0-rc.2"
+version = "0.14"
 features = [
     "bmp",
     "wav"
