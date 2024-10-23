@@ -25,101 +25,89 @@ pub enum MenuButtonAction {
 pub fn setup_main_menu(mut commands: Commands) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             OnMainMenuScreen,
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: palettes::css::CRIMSON.into(),
-                    ..default()
-                })
+                    BackgroundColor(palettes::css::CRIMSON.into()),
+                ))
                 .with_children(|parent| {
                     // 标题
-                    parent.spawn(
-                        TextBundle::from_section(
-                            "Tetris Main Menu",
-                            TextStyle {
-                                font_size: 25.0,
-                                color: Color::srgb(0.9, 0.9, 0.9),
-                                ..default()
-                            },
-                        )
-                        .with_style(Style {
+                    parent.spawn((
+                        Text::new("Tetris Main Menu"),
+                        TextFont {
+                            font_size: 25.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        Node {
                             margin: UiRect::all(Val::Px(20.0)),
                             ..default()
-                        }),
-                    );
+                        },
+                    ));
 
                     // 开始按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(50.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(50.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::StartGame,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Start",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Start"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
 
                     // 退出按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(50.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(50.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::Quit,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Quit",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Quit"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
                 });
@@ -129,101 +117,89 @@ pub fn setup_main_menu(mut commands: Commands) {
 pub fn setup_game_over_menu(mut commands: Commands) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             OnGameOverMenuScreen,
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: palettes::css::CRIMSON.into(),
-                    ..default()
-                })
+                    BackgroundColor(palettes::css::CRIMSON.into()),
+                ))
                 .with_children(|parent| {
                     // 标题
-                    parent.spawn(
-                        TextBundle::from_section(
-                            "Game Over",
-                            TextStyle {
-                                font_size: 25.0,
-                                color: Color::srgb(0.9, 0.9, 0.9),
-                                ..default()
-                            },
-                        )
-                        .with_style(Style {
+                    parent.spawn((
+                        Text::new("Game Over"),
+                        TextFont {
+                            font_size: 25.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        Node {
                             margin: UiRect::all(Val::Px(20.0)),
                             ..default()
-                        }),
-                    );
+                        },
+                    ));
 
                     // 返回主菜单按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(90.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(90.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::BackToMainMenu,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Main Menu",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Main Menu"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
 
                     // 重新开始按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(90.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(90.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::RestartGame,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Restart",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Restart"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
                 });
@@ -233,130 +209,115 @@ pub fn setup_game_over_menu(mut commands: Commands) {
 pub fn setup_game_paused_menu(mut commands: Commands) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             OnGamePausedMenuScreen,
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: palettes::css::CRIMSON.into(),
-                    ..default()
-                })
+                    BackgroundColor(palettes::css::CRIMSON.into()),
+                ))
                 .with_children(|parent| {
                     // 标题
-                    parent.spawn(
-                        TextBundle::from_section(
-                            "Game Paused",
-                            TextStyle {
-                                font_size: 25.0,
-                                color: Color::srgb(0.9, 0.9, 0.9),
-                                ..default()
-                            },
-                        )
-                        .with_style(Style {
+                    parent.spawn((
+                        Text::new("Game Paused"),
+                        TextFont {
+                            font_size: 25.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        Node {
                             margin: UiRect::all(Val::Px(20.0)),
                             ..default()
-                        }),
-                    );
+                        },
+                    ));
 
                     // 返回主菜单按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(90.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(90.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::BackToMainMenu,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Main Menu",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Main Menu"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
 
                     // 重新开始按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(90.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(90.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::RestartGame,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Restart",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Restart"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
 
                     // 恢复游戏按钮
                     parent
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Px(90.0),
-                                    height: Val::Px(30.0),
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                image: UiImage::default()
-                                    .with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+                            Button,
+                            Node {
+                                width: Val::Px(90.0),
+                                height: Val::Px(30.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
                             MenuButtonAction::ResumeGame,
                         ))
                         .with_children(|parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Resume",
-                                TextStyle {
+                            parent.spawn((
+                                Text::new("Resume"),
+                                TextFont {
                                     font_size: 20.0,
-                                    color: Color::srgb(0.9, 0.9, 0.9),
                                     ..default()
                                 },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                             ));
                         });
                 });

@@ -54,8 +54,8 @@ pub fn setup_game_board(mut commands: Commands) {
     // 左侧边界
     let half_col_count = COL_COUNT as f32 / 2.0;
     let half_raw_count = ROW_COUNT as f32 / 2.0;
-    commands.spawn(SpriteBundle {
-        transform: Transform {
+    commands.spawn((
+        Transform {
             translation: Vec3 {
                 x: -half_col_count * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
                 ..default()
@@ -67,15 +67,15 @@ pub fn setup_game_board(mut commands: Commands) {
             },
             ..default()
         },
-        sprite: Sprite {
+        Sprite {
             color: BORDER_COLOR,
             ..default()
         },
-        ..default()
-    });
+    ));
+
     // 右侧边界
-    commands.spawn(SpriteBundle {
-        transform: Transform {
+    commands.spawn((
+        Transform {
             translation: Vec3 {
                 x: half_col_count * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
                 ..default()
@@ -87,15 +87,15 @@ pub fn setup_game_board(mut commands: Commands) {
             },
             ..default()
         },
-        sprite: Sprite {
+        Sprite {
             color: BORDER_COLOR,
             ..default()
         },
-        ..default()
-    });
+    ));
+
     // 上侧边界
-    commands.spawn(SpriteBundle {
-        transform: Transform {
+    commands.spawn((
+        Transform {
             translation: Vec3 {
                 y: half_raw_count * BLOCK_LENGTH + BORDER_THICKNESS / 2.0,
                 ..default()
@@ -107,15 +107,15 @@ pub fn setup_game_board(mut commands: Commands) {
             },
             ..default()
         },
-        sprite: Sprite {
+        Sprite {
             color: BORDER_COLOR,
             ..default()
         },
-        ..default()
-    });
+    ));
+
     // 下侧边界
-    commands.spawn(SpriteBundle {
-        transform: Transform {
+    commands.spawn((
+        Transform {
             translation: Vec3 {
                 y: -half_raw_count * BLOCK_LENGTH - BORDER_THICKNESS / 2.0,
                 ..default()
@@ -127,12 +127,11 @@ pub fn setup_game_board(mut commands: Commands) {
             },
             ..default()
         },
-        sprite: Sprite {
+        Sprite {
             color: BORDER_COLOR,
             ..default()
         },
-        ..default()
-    });
+    ));
 }
 
 // 当piece移到底部后，移除piece组件
@@ -194,10 +193,7 @@ pub fn check_full_line(
     }
     if full_lines.len() > 0 {
         dbg!(full_lines.len());
-        commands.spawn(AudioBundle {
-            source: game_audios.line_clear.clone(),
-            ..default()
-        });
+        commands.spawn(AudioPlayer(game_audios.line_clear.clone()));
     }
     // 行数增加
     lines.0 += full_lines.len() as u32;
@@ -252,10 +248,7 @@ pub fn check_game_over(
     }
     // info!("max_block_y: {}", max_block_y);
     if max_block_y >= 19 {
-        commands.spawn(AudioBundle {
-            source: game_audios.gameover.clone(),
-            ..default()
-        });
+        commands.spawn(AudioPlayer(game_audios.gameover.clone()));
         app_state.set(AppState::GameOver);
         game_state.set(GameState::GameQuited);
     }

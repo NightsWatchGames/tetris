@@ -205,10 +205,10 @@ pub fn move_piece(
 }
 
 fn spawn_drop_audio(commands: &mut Commands, game_audios: &Res<GameAudios>) {
-    commands.spawn(AudioBundle {
-        source: game_audios.drop.clone(),
-        settings: PlaybackSettings::DESPAWN,
-    });
+    commands.spawn((
+        AudioPlayer(game_audios.drop.clone()),
+        PlaybackSettings::DESPAWN,
+    ));
 }
 
 // 检查碰撞
@@ -465,10 +465,10 @@ pub fn random_7_pieces() -> Vec<PieceConfig> {
         .collect()
 }
 
-pub fn new_block_sprite(block: &Block, color: Color, visibility: Visibility) -> SpriteBundle {
-    SpriteBundle {
-        sprite: Sprite { color, ..default() },
-        transform: Transform {
+pub fn new_block_sprite(block: &Block, color: Color, visibility: Visibility) -> impl Bundle {
+    (
+        Sprite { color, ..default() },
+        Transform {
             scale: Vec3::new(
                 BLOCK_STICKER_LENGTH,
                 BLOCK_STICKER_LENGTH,
@@ -478,6 +478,5 @@ pub fn new_block_sprite(block: &Block, color: Color, visibility: Visibility) -> 
             ..default()
         },
         visibility,
-        ..default()
-    }
+    )
 }

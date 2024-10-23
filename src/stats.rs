@@ -41,73 +41,63 @@ pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
     info!("gameboard_left_corner_pos: {:?}", gameboard_left_corner_pos);
     // 分数
     commands
-        .spawn(
-            TextBundle::from_sections([
-                TextSection::new(
-                    "Score: ",
-                    TextStyle {
-                        font_size: 40.0,
-                        color: Color::srgb(0.5, 0.5, 1.0),
-                        ..default()
-                    },
-                ),
-                TextSection::new(
-                    "0",
-                    TextStyle {
-                        font_size: 40.0,
-                        color: Color::srgb(1.0, 0.5, 0.5),
-                        ..default()
-                    },
-                ),
-            ])
-            .with_style(Style {
+        .spawn((
+            Text::new("Score: "),
+            TextFont {
+                font_size: 40.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.5, 0.5, 1.0)),
+            Node {
                 position_type: PositionType::Absolute,
                 top: Val::Px(gameboard_left_corner_pos.1),
                 left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
-            }),
-        )
-        .insert(Scoreboard);
+            },
+        ))
+        .with_child((
+            TextSpan::new("0"),
+            TextFont {
+                font_size: 40.0,
+                ..default()
+            },
+            TextColor(Color::srgb(1.0, 0.5, 0.5)),
+            Scoreboard,
+        ));
 
     // 行数
     commands
-        .spawn(
-            TextBundle::from_sections([
-                TextSection::new(
-                    "Lines: ",
-                    TextStyle {
-                        font_size: 40.0,
-                        color: Color::srgb(0.5, 0.5, 1.0),
-                        ..default()
-                    },
-                ),
-                TextSection::new(
-                    "0",
-                    TextStyle {
-                        font_size: 40.0,
-                        color: Color::srgb(1.0, 0.5, 0.5),
-                        ..default()
-                    },
-                ),
-            ])
-            .with_style(Style {
+        .spawn((
+            Text::new("Lines: "),
+            TextFont {
+                font_size: 40.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.5, 0.5, 1.0)),
+            Node {
                 position_type: PositionType::Absolute,
                 top: Val::Px(gameboard_left_corner_pos.1 + STATS_BOARD_WIDTH),
                 left: Val::Px(gameboard_left_corner_pos.0 - STATS_BOARD_LENGTH),
                 ..default()
-            }),
-        )
-        .insert(Linesboard);
+            },
+        ))
+        .with_child((
+            TextSpan::new("0"),
+            TextFont {
+                font_size: 40.0,
+                ..default()
+            },
+            TextColor(Color::srgb(1.0, 0.5, 0.5)),
+            Linesboard,
+        ));
 }
 
-pub fn update_scoreboard(score: Res<Score>, mut query: Query<&mut Text, With<Scoreboard>>) {
-    let mut text = query.single_mut();
-    text.sections[1].value = score.0.to_string();
+pub fn update_scoreboard(score: Res<Score>, q_span: Single<&mut TextSpan, With<Scoreboard>>) {
+    **q_span.into_inner() = score.0.to_string();
 }
 
-pub fn update_linesboard(lines: Res<Lines>, mut query: Query<&mut Text, With<Linesboard>>) {
-    let mut text = query.single_mut();
-    text.sections[1].value = lines.0.to_string();
+pub fn update_linesboard(lines: Res<Lines>, q_span: Single<&mut TextSpan, With<Linesboard>>) {
+    **q_span.into_inner() = lines.0.to_string();
 }
 
 pub fn reset_score(mut score: ResMut<Score>) {

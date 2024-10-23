@@ -112,20 +112,19 @@ fn main() {
         // Common
         .add_systems(
             Update,
-            pause_game
-                .run_if(in_state(GameState::GamePlaying).or_else(in_state(GameState::GamePaused))),
+            pause_game.run_if(in_state(GameState::GamePlaying).or(in_state(GameState::GamePaused))),
         )
         .add_systems(
             Update,
             click_button.run_if(
                 in_state(AppState::MainMenu)
-                    .or_else(in_state(AppState::GameOver))
-                    .or_else(in_state(GameState::GamePaused)),
+                    .or(in_state(AppState::GameOver))
+                    .or(in_state(GameState::GamePaused)),
             ),
         )
         .run();
 }
 
 fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
 }
