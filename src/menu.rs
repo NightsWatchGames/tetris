@@ -22,6 +22,33 @@ pub enum MenuButtonAction {
     Quit,
 }
 
+fn spawn_menu_button(builder: &mut ChildBuilder, text: &str, action: MenuButtonAction) {
+    builder
+        .spawn((
+            Button,
+            Node {
+                width: Val::Px(120.0),
+                height: Val::Px(30.0),
+                margin: UiRect::all(Val::Px(10.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+            action,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                Text::new(text),
+                TextFont {
+                    font_size: 20.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+            ));
+        });
+}
+
 pub fn setup_main_menu(mut commands: Commands) {
     commands
         .spawn((
@@ -60,56 +87,10 @@ pub fn setup_main_menu(mut commands: Commands) {
                     ));
 
                     // 开始按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(50.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::StartGame,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Start"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Start", MenuButtonAction::StartGame);
 
                     // 退出按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(50.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::Quit,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Quit"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Quit", MenuButtonAction::Quit);
                 });
         });
 }
@@ -152,56 +133,10 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                     ));
 
                     // 返回主菜单按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(120.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::BackToMainMenu,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Main Menu"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Main Menu", MenuButtonAction::BackToMainMenu);
 
                     // 重新开始按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(120.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::RestartGame,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Restart"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Restart", MenuButtonAction::RestartGame);
                 });
         });
 }
@@ -244,82 +179,13 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                     ));
 
                     // 返回主菜单按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(120.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::BackToMainMenu,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Main Menu"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Main Menu", MenuButtonAction::BackToMainMenu);
 
                     // 重新开始按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(120.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::RestartGame,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Restart"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Restart", MenuButtonAction::RestartGame);
 
                     // 恢复游戏按钮
-                    parent
-                        .spawn((
-                            Button,
-                            Node {
-                                width: Val::Px(120.0),
-                                height: Val::Px(30.0),
-                                margin: UiRect::all(Val::Px(10.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
-                            MenuButtonAction::ResumeGame,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text::new("Resume"),
-                                TextFont {
-                                    font_size: 20.0,
-                                    ..default()
-                                },
-                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                            ));
-                        });
+                    spawn_menu_button(parent, "Resume", MenuButtonAction::ResumeGame);
                 });
         });
 }
