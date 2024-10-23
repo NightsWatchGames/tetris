@@ -156,7 +156,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                         .spawn((
                             Button,
                             Node {
-                                width: Val::Px(90.0),
+                                width: Val::Px(120.0),
                                 height: Val::Px(30.0),
                                 margin: UiRect::all(Val::Px(10.0)),
                                 justify_content: JustifyContent::Center,
@@ -182,7 +182,7 @@ pub fn setup_game_over_menu(mut commands: Commands) {
                         .spawn((
                             Button,
                             Node {
-                                width: Val::Px(90.0),
+                                width: Val::Px(120.0),
                                 height: Val::Px(30.0),
                                 margin: UiRect::all(Val::Px(10.0)),
                                 justify_content: JustifyContent::Center,
@@ -248,7 +248,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                         .spawn((
                             Button,
                             Node {
-                                width: Val::Px(90.0),
+                                width: Val::Px(120.0),
                                 height: Val::Px(30.0),
                                 margin: UiRect::all(Val::Px(10.0)),
                                 justify_content: JustifyContent::Center,
@@ -274,7 +274,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                         .spawn((
                             Button,
                             Node {
-                                width: Val::Px(90.0),
+                                width: Val::Px(120.0),
                                 height: Val::Px(30.0),
                                 margin: UiRect::all(Val::Px(10.0)),
                                 justify_content: JustifyContent::Center,
@@ -300,7 +300,7 @@ pub fn setup_game_paused_menu(mut commands: Commands) {
                         .spawn((
                             Button,
                             Node {
-                                width: Val::Px(90.0),
+                                width: Val::Px(120.0),
                                 height: Val::Px(30.0),
                                 margin: UiRect::all(Val::Px(10.0)),
                                 justify_content: JustifyContent::Center,

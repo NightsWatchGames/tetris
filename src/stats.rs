@@ -8,7 +8,7 @@ use crate::{
 };
 
 // 计分板长宽
-const STATS_BOARD_LENGTH: f32 = 220.0;
+const STATS_BOARD_LENGTH: f32 = 280.0;
 const STATS_BOARD_WIDTH: f32 = 50.0;
 
 // 分数
@@ -30,13 +30,12 @@ pub struct NextPieceType(pub Option<PieceType>);
 #[derive(Debug, Component)]
 pub struct NextPieceBoard;
 
-pub fn setup_stats_boards(mut commands: Commands, windows: Query<&Window>) {
+pub fn setup_stats_boards(mut commands: Commands, q_window: Single<&Window>) {
     // 通过窗口大小和棋盘大小计算stats位置
-    let window = windows.single();
     // gameboard左上角在窗口上的位置
     let gameboard_left_corner_pos = (
-        window.physical_width() as f32 / 2.0 - 5.0 * BLOCK_LENGTH,
-        window.physical_height() as f32 / 2.0 - 10.0 * BLOCK_LENGTH,
+        q_window.physical_width() as f32 / 2.0 - 5.0 * BLOCK_LENGTH,
+        q_window.physical_height() as f32 / 2.0 - 10.0 * BLOCK_LENGTH,
     );
     info!("gameboard_left_corner_pos: {:?}", gameboard_left_corner_pos);
     // 分数
