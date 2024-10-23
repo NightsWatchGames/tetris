@@ -34,7 +34,7 @@ fn spawn_menu_button(builder: &mut ChildBuilder, text: &str, action: MenuButtonA
                 align_items: AlignItems::Center,
                 ..default()
             },
-            UiImage::default().with_color(Color::srgb(0.15, 0.15, 0.15).into()),
+            BackgroundColor(Color::srgb(0.15, 0.15, 0.15).into()),
             action,
         ))
         .with_children(|parent| {
