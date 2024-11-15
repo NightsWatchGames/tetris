@@ -7,7 +7,7 @@ edition = "2021"
 rand = "0.8"
 
 [dependencies.bevy]
-version = "0.15.0-rc.1"
+version = "0.15.0-rc"
 features = [
     "bmp",
     "wav"
