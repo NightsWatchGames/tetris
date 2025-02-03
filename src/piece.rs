@@ -141,6 +141,9 @@ pub struct Movable {
 #[derive(Debug, Resource)]
 pub struct AutoMovePieceDownTimer(pub Timer);
 
+pub const NORMAL_MOVE_DURATION: std::time::Duration = std::time::Duration::from_millis(1000);
+pub const FAST_MOVE_DURATION: std::time::Duration = std::time::Duration::from_millis(10);
+
 // 待生成的骨牌队列
 #[derive(Debug, Resource)]
 pub struct PieceQueue(pub VecDeque<PieceConfig>);
@@ -167,6 +170,12 @@ pub fn move_piece(
 ) {
     manually_move_timer.0.tick(time.delta());
     auto_move_timer.0.tick(time.delta());
+
+    if keyboard_input.pressed(KeyCode::Space) && auto_move_timer.0.duration() != FAST_MOVE_DURATION
+    {
+        auto_move_timer.0.set_duration(FAST_MOVE_DURATION);
+    }
+
     let mut reset_manually_move_timer = false;
     for (mut block, mut transform, movable) in &mut query {
         // 防止一帧中向下移动两行
@@ -175,7 +184,9 @@ pub fn move_piece(
         if auto_move_timer.0.just_finished() && movable.can_down {
             block.y -= 1;
 
-            spawn_drop_audio(&mut commands, &game_audios);
+            if auto_move_timer.0.duration() != FAST_MOVE_DURATION {
+                spawn_drop_audio(&mut commands, &game_audios);
+            }
             already_down = true;
         }
         // 手动移动
@@ -215,6 +226,7 @@ fn spawn_drop_audio(commands: &mut Commands, game_audios: &Res<GameAudios>) {
 pub fn check_collision(
     mut piece_query: Query<(&mut Block, &mut Movable), With<PieceType>>,
     board_query: Query<&Block, Without<PieceType>>,
+    mut auto_move_timer: ResMut<AutoMovePieceDownTimer>,
 ) {
     let mut can_down = true;
     let mut can_left = true;
@@ -260,6 +272,9 @@ pub fn check_collision(
         movable.can_left = can_left;
         movable.can_right = can_right;
         movable.can_down = can_down;
+    }
+    if !can_down {
+        auto_move_timer.0.set_duration(NORMAL_MOVE_DURATION);
     }
 }
 
