@@ -20,7 +20,7 @@ fn main() {
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(NextPieceType(None))
         .insert_resource(AutoMovePieceDownTimer(Timer::new(
-            Duration::from_millis(1000),
+            NORMAL_MOVE_DURATION,
             TimerMode::Repeating,
         )))
         .insert_resource(ManuallyMoveTimer(Timer::new(
