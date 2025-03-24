@@ -434,11 +434,11 @@ pub fn auto_generate_new_piece(
 
 // bag7算法实现随机：每次填充7个随机排序的骨牌
 pub fn random_7_pieces() -> Vec<PieceConfig> {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let mut piece_type_set = BTreeSet::new();
 
     loop {
-        match rng.gen_range(0..PieceType::PIECE_AMOUNT) {
+        match rng.random_range(0..PieceType::PIECE_AMOUNT) {
             0 => {
                 piece_type_set.insert(PieceType::I);
             }

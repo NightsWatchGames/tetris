@@ -1,13 +1,13 @@
 [package]
 name = "tetris"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-rand = "0.8"
+rand = "0.9"
 
 [dependencies.bevy]
-version = "0.15"
+version = "0.16.0-rc.1"
 features = [
     "bmp",
     "wav"

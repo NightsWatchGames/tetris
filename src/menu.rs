@@ -1,5 +1,6 @@
 use bevy::app::AppExit;
 use bevy::color::palettes;
+use bevy::ecs::relationship::RelatedSpawnerCommands;
 use bevy::prelude::*;
 
 use crate::common::{AppState, GameState};
@@ -22,7 +23,7 @@ pub enum MenuButtonAction {
     Quit,
 }
 
-fn spawn_menu_button(builder: &mut ChildBuilder, text: &str, action: MenuButtonAction) {
+fn spawn_menu_button(builder: &mut RelatedSpawnerCommands<ChildOf>, text: &str, action: MenuButtonAction) {
     builder
         .spawn((
             Button,
@@ -224,7 +225,7 @@ pub fn click_button(
                 }
                 MenuButtonAction::Quit => {
                     info!("Quit button clicked");
-                    exit.send_default();
+                    exit.write_default();
                 }
             },
             _ => {}
@@ -253,6 +254,6 @@ pub fn play_game(mut game_state: ResMut<NextState<GameState>>) {
 
 pub fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
