@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    board::{Block, BLOCK_LENGTH},
+    board::{BLOCK_LENGTH, Block},
     new_block_sprite,
     piece::{PieceQueue, PieceType},
     piece_shape, shift_piece,

@@ -1,3 +1,4 @@
+use std::sync::LazyLock;
 use bevy::app::AppExit;
 use bevy::color::palettes;
 use bevy::ecs::relationship::RelatedSpawnerCommands;
@@ -23,53 +24,62 @@ pub enum MenuButtonAction {
     Quit,
 }
 
-fn spawn_menu_button(builder: &mut RelatedSpawnerCommands<ChildOf>, text: &str, action: MenuButtonAction) {
-    builder
-        .spawn((
-            Button,
-            Node {
-                width: Val::Px(120.0),
-                height: Val::Px(30.0),
-                margin: UiRect::all(Val::Px(10.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+static MENU_ROOT_NODE: LazyLock<Node> = LazyLock::new(|| {
+    Node {
+        width: Val::Percent(100.0),
+        height: Val::Percent(100.0),
+        align_items: AlignItems::Center,
+        justify_content: JustifyContent::Center,
+        ..default()
+    }
+});
+
+static MENU_BUTTON_CONTAINER_NODE: LazyLock<Node> = LazyLock::new(|| {
+    Node {
+        flex_direction: FlexDirection::Column,
+        align_items: AlignItems::Center,
+        ..default()
+    }
+});
+
+fn spawn_menu_button(
+    builder: &mut RelatedSpawnerCommands<ChildOf>,
+    text: &str,
+    action: MenuButtonAction,
+) {
+    builder.spawn((
+        Button,
+        Node {
+            width: Val::Px(120.0),
+            height: Val::Px(30.0),
+            margin: UiRect::all(Val::Px(10.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        BackgroundColor(Color::srgb(0.15, 0.15, 0.15).into()),
+        action,
+        children![(
+            Text::new(text),
+            TextFont {
+                font_size: 20.0,
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.15, 0.15, 0.15).into()),
-            action,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Text::new(text),
-                TextFont {
-                    font_size: 20.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-            ));
-        });
+            TextColor(Color::srgb(0.9, 0.9, 0.9)),
+        )],
+    ));
 }
 
 pub fn setup_main_menu(mut commands: Commands) {
     commands
         .spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+            MENU_ROOT_NODE.clone(),
             OnMainMenuScreen,
         ))
         .with_children(|parent| {
             parent
                 .spawn((
-                    Node {
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
+                    MENU_BUTTON_CONTAINER_NODE.clone(),
                     BackgroundColor(palettes::css::CRIMSON.into()),
                 ))
                 .with_children(|parent| {
@@ -99,23 +109,13 @@ pub fn setup_main_menu(mut commands: Commands) {
 pub fn setup_game_over_menu(mut commands: Commands) {
     commands
         .spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+            MENU_ROOT_NODE.clone(),
             OnGameOverMenuScreen,
         ))
         .with_children(|parent| {
             parent
                 .spawn((
-                    Node {
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
+                    MENU_BUTTON_CONTAINER_NODE.clone(),
                     BackgroundColor(palettes::css::CRIMSON.into()),
                 ))
                 .with_children(|parent| {
@@ -145,23 +145,13 @@ pub fn setup_game_over_menu(mut commands: Commands) {
 pub fn setup_game_paused_menu(mut commands: Commands) {
     commands
         .spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+            MENU_ROOT_NODE.clone(),
             OnGamePausedMenuScreen,
         ))
         .with_children(|parent| {
             parent
                 .spawn((
-                    Node {
-                        flex_direction: FlexDirection::Column,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
+                    MENU_BUTTON_CONTAINER_NODE.clone(),
                     BackgroundColor(palettes::css::CRIMSON.into()),
                 ))
                 .with_children(|parent| {
