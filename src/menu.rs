@@ -1,7 +1,6 @@
 use std::sync::LazyLock;
 use bevy::app::AppExit;
 use bevy::color::palettes;
-use bevy::ecs::relationship::RelatedSpawnerCommands;
 use bevy::prelude::*;
 
 use crate::common::{AppState, GameState};
@@ -42,12 +41,8 @@ static MENU_BUTTON_CONTAINER_NODE: LazyLock<Node> = LazyLock::new(|| {
     }
 });
 
-fn spawn_menu_button(
-    builder: &mut RelatedSpawnerCommands<ChildOf>,
-    text: &str,
-    action: MenuButtonAction,
-) {
-    builder.spawn((
+fn menu_button(text: &str, action: MenuButtonAction) -> impl Bundle {
+    (
         Button,
         Node {
             width: Val::Px(120.0),
@@ -67,118 +62,99 @@ fn spawn_menu_button(
             },
             TextColor(Color::srgb(0.9, 0.9, 0.9)),
         )],
-    ));
+    )
 }
 
 pub fn setup_main_menu(mut commands: Commands) {
-    commands
-        .spawn((
-            MENU_ROOT_NODE.clone(),
-            OnMainMenuScreen,
-        ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    MENU_BUTTON_CONTAINER_NODE.clone(),
-                    BackgroundColor(palettes::css::CRIMSON.into()),
-                ))
-                .with_children(|parent| {
-                    // 标题
-                    parent.spawn((
-                        Text::new("Tetris Main Menu"),
-                        TextFont {
-                            font_size: 25.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                        Node {
-                            margin: UiRect::all(Val::Px(20.0)),
-                            ..default()
-                        },
-                    ));
-
-                    // 开始按钮
-                    spawn_menu_button(parent, "Start", MenuButtonAction::StartGame);
-
-                    // 退出按钮
-                    spawn_menu_button(parent, "Quit", MenuButtonAction::Quit);
-                });
-        });
+    commands.spawn((
+        MENU_ROOT_NODE.clone(),
+        OnMainMenuScreen,
+        children![(
+            MENU_BUTTON_CONTAINER_NODE.clone(),
+            BackgroundColor(palettes::css::CRIMSON.into()),
+            children![
+                // 标题
+                (
+                    Text::new("Tetris Main Menu"),
+                    TextFont {
+                        font_size: 25.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    Node {
+                        margin: UiRect::all(Val::Px(20.0)),
+                        ..default()
+                    },
+                ),
+                // 开始按钮
+                menu_button("Start", MenuButtonAction::StartGame),
+                // 退出按钮
+                menu_button("Quit", MenuButtonAction::Quit),
+            ]
+        )],
+    ));
 }
 
 pub fn setup_game_over_menu(mut commands: Commands) {
-    commands
-        .spawn((
-            MENU_ROOT_NODE.clone(),
-            OnGameOverMenuScreen,
-        ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    MENU_BUTTON_CONTAINER_NODE.clone(),
-                    BackgroundColor(palettes::css::CRIMSON.into()),
-                ))
-                .with_children(|parent| {
-                    // 标题
-                    parent.spawn((
-                        Text::new("Game Over"),
-                        TextFont {
-                            font_size: 25.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                        Node {
-                            margin: UiRect::all(Val::Px(20.0)),
-                            ..default()
-                        },
-                    ));
-
-                    // 返回主菜单按钮
-                    spawn_menu_button(parent, "Main Menu", MenuButtonAction::BackToMainMenu);
-
-                    // 重新开始按钮
-                    spawn_menu_button(parent, "Restart", MenuButtonAction::RestartGame);
-                });
-        });
+    commands.spawn((
+        MENU_ROOT_NODE.clone(),
+        OnGameOverMenuScreen,
+        children![(
+            MENU_BUTTON_CONTAINER_NODE.clone(),
+            BackgroundColor(palettes::css::CRIMSON.into()),
+            children![
+                // 标题
+                (
+                    Text::new("Game Over"),
+                    TextFont {
+                        font_size: 25.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    Node {
+                        margin: UiRect::all(Val::Px(20.0)),
+                        ..default()
+                    },
+                ),
+                // 返回主菜单按钮
+                menu_button("Main Menu", MenuButtonAction::BackToMainMenu),
+                // 重新开始按钮
+                menu_button("Restart", MenuButtonAction::RestartGame),
+            ]
+        )],
+    ));
 }
 
 pub fn setup_game_paused_menu(mut commands: Commands) {
-    commands
-        .spawn((
-            MENU_ROOT_NODE.clone(),
-            OnGamePausedMenuScreen,
-        ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    MENU_BUTTON_CONTAINER_NODE.clone(),
-                    BackgroundColor(palettes::css::CRIMSON.into()),
-                ))
-                .with_children(|parent| {
-                    // 标题
-                    parent.spawn((
-                        Text::new("Game Paused"),
-                        TextFont {
-                            font_size: 25.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                        Node {
-                            margin: UiRect::all(Val::Px(20.0)),
-                            ..default()
-                        },
-                    ));
-
-                    // 返回主菜单按钮
-                    spawn_menu_button(parent, "Main Menu", MenuButtonAction::BackToMainMenu);
-
-                    // 重新开始按钮
-                    spawn_menu_button(parent, "Restart", MenuButtonAction::RestartGame);
-
-                    // 恢复游戏按钮
-                    spawn_menu_button(parent, "Resume", MenuButtonAction::ResumeGame);
-                });
-        });
+    commands.spawn((
+        MENU_ROOT_NODE.clone(),
+        OnGamePausedMenuScreen,
+        children![(
+            MENU_BUTTON_CONTAINER_NODE.clone(),
+            BackgroundColor(palettes::css::CRIMSON.into()),
+            children![
+                // 标题
+                (
+                    Text::new("Game Paused"),
+                    TextFont {
+                        font_size: 25.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    Node {
+                        margin: UiRect::all(Val::Px(20.0)),
+                        ..default()
+                    },
+                ),
+                // 返回主菜单按钮
+                menu_button("Main Menu", MenuButtonAction::BackToMainMenu),
+                // 重新开始按钮
+                menu_button("Restart", MenuButtonAction::RestartGame),
+                // 恢复游戏按钮
+                menu_button("Resume", MenuButtonAction::ResumeGame)
+            ]
+        )],
+    ));
 }
 
 pub fn click_button(
